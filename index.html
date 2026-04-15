@@ -1,3 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>ProjeX</title>
+    <style>
+CESESE
+    </style>
+</head>
+<body>
+HETEMELE
+    <script>
 
 <!DOCTYPE html>
 <html lang="tr">
@@ -3136,6 +3149,286 @@ body.preview-mode .file-title-bar { display: none !important; }
 }
 .version-summary-error.visible { display: block; }
 
+/* ═══════════════════════════════════════════════════════════════
+   3-PANEL SPLIT EDITOR LAYOUT
+   ═══════════════════════════════════════════════════════════════ */
+
+/* main artık column flex — editors-row + split-preview + tools-bar */
+#appMain {
+    display: flex !important;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* ── Editors Row ─────────────────────────────────────────────── */
+.editors-row {
+    display: flex;
+    flex-direction: row;
+    flex-shrink: 0;
+    height: 42vh;
+    min-height: 120px;
+    border-bottom: 1px solid var(--glass-border);
+    overflow: hidden;
+    transition: height 0.3s ease;
+}
+body.view-editors .editors-row { height: calc(100vh - 160px); }
+body.view-preview .editors-row { height: 0; min-height: 0; border-bottom: none; overflow: hidden; }
+
+/* ── Editor Panel (ep) ───────────────────────────────────────── */
+.ep {
+    flex: 1;
+    min-width: 36px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--glass-border);
+    overflow: hidden;
+    transition: flex 0.28s cubic-bezier(0.4,0,0.2,1), min-width 0.28s ease;
+    position: relative;
+}
+.ep:last-child { border-right: none; }
+.ep.ep-collapsed {
+    flex: 0 0 36px;
+    min-width: 36px;
+}
+.ep.ep-collapsed .ep-body { visibility: hidden; pointer-events: none; }
+
+.ep-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 6px 0 10px;
+    height: 34px;
+    flex-shrink: 0;
+    background: rgba(0,0,0,0.18);
+    border-bottom: 1px solid var(--glass-border);
+    user-select: none;
+}
+
+.ep-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+    flex: 1;
+    min-width: 0;
+}
+.ep-collapsed .ep-label { overflow: visible; }
+
+.ep-name {
+    font-family: 'JetBrains Mono','SF Mono',monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    transition: opacity 0.2s;
+}
+.ep-collapsed .ep-name { opacity: 0; pointer-events: none; }
+
+.ep-icon {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 800;
+    flex-shrink: 0;
+    letter-spacing: -0.02em;
+}
+.ep-icon-html { background: rgba(249,115,22,0.2); color: #f97316; }
+.ep-icon-css  { background: rgba(59,130,246,0.2); color: #3b82f6; }
+.ep-icon-js   { background: rgba(234,179,8,0.2);  color: #eab308; }
+
+.ep-actions {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    flex-shrink: 0;
+}
+
+.ep-action-btn {
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: rgba(120,120,128,0.7);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    padding: 0;
+    flex-shrink: 0;
+}
+.ep-action-btn:hover { background: rgba(120,120,128,0.18); color: var(--text-primary); }
+.ep-action-btn:active { transform: scale(0.88); }
+.ep-action-btn svg { width: 13px; height: 13px; }
+.ep-action-btn.ep-view-toggle-btn svg { width: 14px; height: 14px; }
+
+.ep-body {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+.ep-body .CodeMirror {
+    height: 100% !important;
+    background: transparent;
+}
+.ep-body .CodeMirror-scroll { padding-bottom: 0 !important; }
+
+/* ── Split Preview ───────────────────────────────────────────── */
+.split-preview {
+    flex: 1;
+    min-height: 60px;
+    background: #fff;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+body.view-editors .split-preview { flex: 0; min-height: 0; overflow: hidden; }
+body.view-preview .split-preview { flex: 1; }
+
+.split-preview-iframe {
+    width: 100%; height: 100%;
+    border: none;
+    background: white;
+    display: block;
+}
+
+/* ── Tools Bar (Console / Assets / Shortcuts) ────────────────── */
+.tools-bar {
+    display: flex;
+    align-items: stretch;
+    height: 38px;
+    flex-shrink: 0;
+    background: var(--card-bg);
+    border-top: 1px solid var(--glass-border);
+}
+.tools-tab {
+    padding: 0 14px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    border-bottom: 2px solid transparent;
+    position: relative;
+}
+.tools-tab:hover { color: var(--text-primary); }
+.tools-tab.active { color: var(--text-primary); border-bottom-color: #007aff; }
+.tools-pane {
+    display: none;
+    position: absolute;
+    bottom: 38px; left: 0; right: 0;
+    background: var(--card-bg);
+    border-top: 1px solid var(--glass-border);
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-family: 'JetBrains Mono',monospace;
+    max-height: 160px;
+    overflow-y: auto;
+    z-index: 50;
+}
+.tools-pane.active { display: block; }
+.tools-pane-entry { padding: 2px 0; border-bottom: 1px solid var(--glass-border); }
+.tools-pane-entry:last-child { border-bottom: none; }
+.tools-bar-wrap { position: relative; flex-shrink: 0; }
+
+/* ── Change View Dropdown ────────────────────────────────────── */
+.cv-dropdown {
+    position: fixed;
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 10px;
+    z-index: 600;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    min-width: 150px;
+    opacity: 0;
+    transform: scale(0.9) translateY(-6px);
+    pointer-events: none;
+    transition: opacity 0.18s, transform 0.18s;
+}
+.cv-dropdown.open {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    pointer-events: auto;
+}
+.cv-title {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    padding: 0 2px;
+}
+.cv-opts { display: flex; gap: 5px; }
+.cv-opt {
+    flex: 1;
+    height: 34px;
+    border-radius: 8px;
+    border: 1.5px solid var(--glass-border);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+}
+.cv-opt:hover { background: rgba(120,120,128,0.12); color: var(--text-primary); }
+.cv-opt.active {
+    background: rgba(0,122,255,0.12);
+    border-color: rgba(0,122,255,0.35);
+    color: #007aff;
+}
+.cv-opt svg { width: 15px; height: 15px; }
+
+/* ── Panel Settings Dropdown ─────────────────────────────────── */
+.ep-settings-dropdown {
+    position: fixed;
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 6px;
+    z-index: 600;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    min-width: 160px;
+    opacity: 0;
+    transform: scale(0.92) translateY(-4px);
+    pointer-events: none;
+    transition: opacity 0.15s, transform 0.15s;
+}
+.ep-settings-dropdown.open {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    pointer-events: auto;
+}
+.ep-settings-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px; border-radius: 7px;
+    font-size: 13px; font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer; transition: background 0.12s;
+    border: none; background: transparent; width: 100%;
+    text-align: left; font-family: inherit;
+}
+.ep-settings-item:hover { background: rgba(120,120,128,0.14); }
+.ep-settings-item svg { width: 15px; height: 15px; color: var(--text-secondary); flex-shrink: 0; }
+
+/* preview-area overlay hâlâ var ama sadece tam ekran preview için */
+.preview-area {
+    display: none; position: fixed; inset: 0; z-index: 50;
+    background: white; opacity: 0; transform: scale(1.02);
+    transition: opacity 0.4s cubic-bezier(0.25,0.8,0.25,1), transform 0.4s cubic-bezier(0.25,0.8,0.25,1);
+}
+.preview-area.active { display: block; opacity: 1; transform: scale(1); }
+
 </style>
 
 </head>
@@ -3874,50 +4167,166 @@ body.preview-mode .file-title-bar { display: none !important; }
 </div>
 
 <main id="appMain" style="display:none;">
-    <div class="code-area" id="codeArea">
-        <div class="editor-tab-bar" id="editorTabBar">
-            <button class="editor-tab active" data-tab="html" onclick="_switchEditorTab('html')">
-                <span class="tab-dot tab-dot-html"></span> HTML
-            </button>
-            <button class="editor-tab" data-tab="css" onclick="_switchEditorTab('css')">
-                <span class="tab-dot tab-dot-css"></span> CSS
-            </button>
-            <button class="editor-tab" data-tab="js" onclick="_switchEditorTab('js')">
-                <span class="tab-dot tab-dot-js"></span> JS
-            </button>
-        </div>
-        <div class="editor-search-panel" id="searchPanel">
-            <div class="search-row">
-                <input type="text" id="searchInput" class="search-input"
-                       placeholder="Ara..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                       oninput="_doSearch()" onkeydown="_searchKeydown(event)">
-                <span class="search-count" id="searchCount"></span>
-                <button class="search-btn" onclick="_searchPrev()" title="Önceki (↑)">↑</button>
-                <button class="search-btn" onclick="_searchNext()" title="Sonraki (↓)">↓</button>
-                <button class="search-btn search-opt" id="btnCase" onclick="_toggleCase()" title="Büyük/Küçük Harf">Aa</button>
-                <button class="search-btn search-opt" id="btnRegex" onclick="_toggleRegex()" title="Regex">.*</button>
-                <button class="search-btn search-close" onclick="_closeSearch()">✕</button>
+
+    <!-- ── 3 Yan Yana Editor Paneli ──────────────────────────────── -->
+    <div class="editors-row" id="editorsRow">
+
+        <!-- HTML Paneli -->
+        <div class="ep" id="epHtml" data-lang="html">
+            <div class="ep-header">
+                <div class="ep-label">
+                    <span class="ep-icon ep-icon-html">H</span>
+                    <span class="ep-name">HTML</span>
+                </div>
+                <div class="ep-actions">
+                    <button class="ep-action-btn" onclick="_epSettings(event,'html')" title="Ayarlar">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                    <button class="ep-action-btn" onclick="_togglePanel('html')" title="Küçült / Büyüt" id="epCollapseHtml">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                </div>
             </div>
-            <div class="search-row">
-                <input type="text" id="replaceInput" class="search-input"
-                       placeholder="Değiştir..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                       onkeydown="_replaceKeydown(event)">
-                <button class="search-btn search-replace" onclick="_replaceOne()">Değiştir</button>
-                <button class="search-btn search-replace" onclick="_replaceAll()">Tümü</button>
+            <div class="ep-body" id="epBodyHtml">
+                <textarea id="editorHtml" spellcheck="false"></textarea>
             </div>
         </div>
-        <textarea id="editor" class="code-input" spellcheck="false"
-                  oninput="updateCode()" onkeydown="handleKeydown(event)"></textarea>
+
+        <!-- CSS Paneli -->
+        <div class="ep" id="epCss" data-lang="css">
+            <div class="ep-header">
+                <div class="ep-label">
+                    <span class="ep-icon ep-icon-css">C</span>
+                    <span class="ep-name">CSS</span>
+                </div>
+                <div class="ep-actions">
+                    <button class="ep-action-btn" onclick="_epSettings(event,'css')" title="Ayarlar">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                    <button class="ep-action-btn" onclick="_togglePanel('css')" title="Küçült / Büyüt" id="epCollapseCss">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="ep-body" id="epBodyCss">
+                <textarea id="editorCss" spellcheck="false"></textarea>
+            </div>
+        </div>
+
+        <!-- JS Paneli -->
+        <div class="ep" id="epJs" data-lang="js">
+            <div class="ep-header">
+                <div class="ep-label">
+                    <span class="ep-icon ep-icon-js">J</span>
+                    <span class="ep-name">JS</span>
+                </div>
+                <div class="ep-actions">
+                    <!-- Change View butonu -->
+                    <button class="ep-action-btn ep-view-toggle-btn" id="changeViewBtn" onclick="_toggleChangeView(event)" title="Görünümü Değiştir">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke-width="2"/></svg>
+                    </button>
+                    <button class="ep-action-btn" onclick="_epSettings(event,'js')" title="Ayarlar">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                    <button class="ep-action-btn" onclick="_togglePanel('js')" title="Küçült / Büyüt" id="epCollapseJs">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="ep-body" id="epBodyJs">
+                <textarea id="editorJs" spellcheck="false"></textarea>
+            </div>
+        </div>
     </div>
-    <div class="preview-area" id="previewArea">
-        <iframe id="previewFrameInline" class="preview-frame-inline"></iframe>
-        <button class="preview-close-btn" onclick="handleViewSwitch('code')" title="Kodu görüntüle">
-            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
-            </svg>
-            Kod
+
+    <!-- ── Change View Dropdown ───────────────────────────────────── -->
+    <div class="cv-dropdown" id="cvDropdown">
+        <div class="cv-title">Change View</div>
+        <div class="cv-opts">
+            <button class="cv-opt active" data-view="split" onclick="_setView('split')" title="Editör + Önizleme">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="8" rx="1" stroke-width="2"/><rect x="14" y="3" width="7" height="8" rx="1" stroke-width="2"/><rect x="3" y="14" width="18" height="7" rx="1" stroke-width="2"/></svg>
+            </button>
+            <button class="cv-opt" data-view="editors" onclick="_setView('editors')" title="Sadece Editörler">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="12" x2="21" y2="12" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="18" x2="21" y2="18" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+            <button class="cv-opt" data-view="preview" onclick="_setView('preview')" title="Sadece Önizleme">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- ── Panel Ayarlar Dropdown ────────────────────────────────── -->
+    <div class="ep-settings-dropdown" id="epSettingsDropdown">
+        <button class="ep-settings-item" onclick="_epSettingClear()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            Temizle
+        </button>
+        <button class="ep-settings-item" onclick="_epSettingCopy()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Kopyala
+        </button>
+        <button class="ep-settings-item" onclick="_epSettingSearch()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg>
+            Ara / Değiştir
         </button>
     </div>
+    <div class="cv-backdrop" id="cvBackdrop" onclick="_closeAllDropdowns()" style="display:none;position:fixed;inset:0;z-index:599;"></div>
+
+    <!-- ── Arama Paneli (aktif panel üzerinde gösterilir) ─────────── -->
+    <div class="editor-search-panel" id="searchPanel">
+        <div class="search-row">
+            <input type="text" id="searchInput" class="search-input"
+                   placeholder="Ara..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                   oninput="_doSearch()" onkeydown="_searchKeydown(event)">
+            <span class="search-count" id="searchCount"></span>
+            <button class="search-btn" onclick="_searchPrev()" title="Önceki (↑)">↑</button>
+            <button class="search-btn" onclick="_searchNext()" title="Sonraki (↓)">↓</button>
+            <button class="search-btn search-opt" id="btnCase" onclick="_toggleCase()" title="Büyük/Küçük Harf">Aa</button>
+            <button class="search-btn search-opt" id="btnRegex" onclick="_toggleRegex()" title="Regex">.*</button>
+            <button class="search-btn search-close" onclick="_closeSearch()">✕</button>
+        </div>
+        <div class="search-row">
+            <input type="text" id="replaceInput" class="search-input"
+                   placeholder="Değiştir..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                   onkeydown="_replaceKeydown(event)">
+            <button class="search-btn search-replace" onclick="_replaceOne()">Değiştir</button>
+            <button class="search-btn search-replace" onclick="_replaceAll()">Tümü</button>
+        </div>
+    </div>
+
+    <!-- ── Split Preview ─────────────────────────────────────────── -->
+    <div class="split-preview" id="splitPreview">
+        <iframe id="previewFrameInline" class="split-preview-iframe"></iframe>
+    </div>
+
+    <!-- ── Alt Araçlar Çubuğu (Console / Assets / Shortcuts) ──────── -->
+    <div class="tools-bar-wrap" id="toolsBarWrap">
+        <div class="tools-pane active" id="toolsPaneConsole">
+            <div class="tools-pane-entry" id="consolePlaceholder" style="color:var(--text-secondary);font-style:italic;">Konsol çıktısı burada görünür.</div>
+        </div>
+        <div class="tools-pane" id="toolsPaneAssets">
+            <div class="tools-pane-entry" style="cursor:pointer;color:#007aff;" onclick="openSavedFilesPanel()">Kayıtlı Dosyalar →</div>
+        </div>
+        <div class="tools-pane" id="toolsPaneShortcuts">
+            <div class="tools-pane-entry">Ctrl+/ → Yorum ekle</div>
+            <div class="tools-pane-entry">Ctrl+S → Kaydet</div>
+            <div class="tools-pane-entry">Ctrl+F → Ara</div>
+            <div class="tools-pane-entry">Tab → 2 boşluk girintile</div>
+            <div class="tools-pane-entry">Ctrl+Q → Kodu katla</div>
+        </div>
+        <div class="tools-bar" id="toolsBar">
+            <button class="tools-tab active" data-pane="Console" onclick="_switchToolsTab(this,'toolsPaneConsole')">Console</button>
+            <button class="tools-tab" data-pane="Assets" onclick="_switchToolsTab(this,'toolsPaneAssets')">Assets</button>
+            <button class="tools-tab" data-pane="Shortcuts" onclick="_switchToolsTab(this,'toolsPaneShortcuts')">Shortcuts</button>
+        </div>
+    </div>
+
+    <!-- ── Tam Ekran Önizleme Overlay (eski preview-mode için) ────── -->
+    <div class="preview-area" id="previewArea"></div>
+
+    <!-- Geri uyumluluk için gizli textarea -->
+    <textarea id="editor" class="code-input" style="display:none;" spellcheck="false"
+              oninput="updateCode()" onkeydown="handleKeydown(event)"></textarea>
 </main>
 
 <textarea id="hiddenCopyArea" class="hidden-copy-area" readonly></textarea>
@@ -6348,7 +6757,7 @@ async function previewVersion(versionId, versionNum) {
 
     updateEditor();
     // CodeMirror'u salt okunur yap
-    if (window.cm) cm.setOption('readOnly', 'nocursor');
+    _allCms().forEach(c => c.setOption('readOnly', 'nocursor'));
     handleViewSwitch('preview');
     closeVersionPanel();
     _showOldVersionBanner(versionNum);
@@ -6389,7 +6798,7 @@ async function restoreVersion(versionId, versionNum) {
     hasUnsavedChanges = false;
 
     updateEditor(); updateTabDotColor();
-    if (window.cm) cm.setOption('readOnly', false);
+    _allCms().forEach(c => c.setOption('readOnly', false));
     setSaveButtonState('saved');
     _hideOldVersionBanner();
     saveToStorage();
@@ -6416,7 +6825,7 @@ function exitOldVersionView() {
     _viewingVersionNum = null;
     hasUnsavedChanges = false;
     updateEditor(); updateTabDotColor();
-    if (window.cm) cm.setOption('readOnly', false);
+    _allCms().forEach(c => c.setOption('readOnly', false));
     setSaveButtonState('saved');
     _hideOldVersionBanner();
     handleViewSwitch('code');
@@ -6821,7 +7230,7 @@ async function _undoRestore() {
     _viewingVersionNum  = null;
     hasUnsavedChanges   = false;
     updateEditor(); updateTabDotColor();
-    if (window.cm) cm.setOption('readOnly', false);
+    _allCms().forEach(c => c.setOption('readOnly', false));
     setSaveButtonState('saved');
     _hideOldVersionBanner();
     saveToStorage();
@@ -7176,15 +7585,12 @@ function initSwitcher(el) {
 // ── View Switch ────────────────────────────────────────────────────────
 function handleViewSwitch(view) {
     currentView = view;
-    const previewArea = document.getElementById('previewArea');
     syncSwitchers(view);
+    // Yeni split-view sistemine yönlendir
     if (view === 'preview') {
-        document.body.classList.add('preview-mode');
-        document.getElementById('previewFrameInline').srcdoc = buildPage();
-        previewArea.classList.add('active');
+        _setView('preview');
     } else {
-        document.body.classList.remove('preview-mode');
-        previewArea.classList.remove('active');
+        _setView('split');
     }
     _updateBBView(view);
 }
@@ -7192,6 +7598,132 @@ function handleViewSwitch(view) {
 function toggleBottomBarView() {
     handleViewSwitch(currentView === 'preview' ? 'code' : 'preview');
 }
+
+// ── Yeni Panel & View Fonksiyonları ───────────────────────────────────────
+
+let _currentView = 'split'; // 'split' | 'editors' | 'preview'
+let _epSettings_lang = null;
+
+function _setView(mode) {
+    _currentView = mode;
+    // body class'larını güncelle
+    document.body.classList.remove('view-split','view-editors','view-preview');
+    document.body.classList.add('view-' + mode);
+    // Preview iframe'i güncelle
+    if (mode !== 'editors') {
+        document.getElementById('previewFrameInline').srcdoc = buildPage();
+    }
+    // cv-dropdown butonlarını güncelle
+    document.querySelectorAll('.cv-opt').forEach(b => {
+        b.classList.toggle('active', b.dataset.view === mode);
+    });
+    // Tüm cm'leri refresh et
+    setTimeout(() => _allCms().forEach(c => c.refresh()), 50);
+    _closeAllDropdowns();
+}
+
+function _togglePanel(lang) {
+    const el = document.getElementById('ep' + lang.charAt(0).toUpperCase() + lang.slice(1));
+    if (!el) return;
+    const collapsed = el.classList.toggle('ep-collapsed');
+    // Collapse buton okunu döndür
+    const btn = document.getElementById('epCollapse' + lang.charAt(0).toUpperCase() + lang.slice(1));
+    if (btn) {
+        const svg = btn.querySelector('svg path');
+        if (svg) svg.setAttribute('d', collapsed
+            ? 'M9 5l7 7-7 7'   // sağa ok (kapalı)
+            : 'M19 9l-7 7-7-7' // aşağı ok (açık)
+        );
+    }
+    setTimeout(() => _allCms().forEach(c => c.refresh()), 50);
+}
+
+function _toggleChangeView(event) {
+    const dd = document.getElementById('cvDropdown');
+    const btn = document.getElementById('changeViewBtn');
+    const isOpen = dd.classList.contains('open');
+    _closeAllDropdowns();
+    if (!isOpen) {
+        const rect = btn.getBoundingClientRect();
+        dd.style.top  = (rect.bottom + 4) + 'px';
+        dd.style.right = (window.innerWidth - rect.right) + 'px';
+        dd.style.left  = 'auto';
+        dd.classList.add('open');
+        document.getElementById('cvBackdrop').style.display = 'block';
+    }
+    event.stopPropagation();
+}
+
+let _epSettingsLang = null;
+function _epSettings(event, lang) {
+    _epSettingsLang = lang;
+    const dd = document.getElementById('epSettingsDropdown');
+    const isOpen = dd.classList.contains('open');
+    _closeAllDropdowns();
+    if (!isOpen) {
+        const rect = event.currentTarget.getBoundingClientRect();
+        dd.style.top  = (rect.bottom + 4) + 'px';
+        dd.style.right = (window.innerWidth - rect.right) + 'px';
+        dd.style.left  = 'auto';
+        dd.classList.add('open');
+        _epSettingsLang = lang;
+        document.getElementById('cvBackdrop').style.display = 'block';
+    }
+    event.stopPropagation();
+}
+
+function _epSettingClear() {
+    const c = _getCm(_epSettingsLang);
+    if (c) { c.setValue(''); _tabs[_epSettingsLang] = ''; code = _mergeBodyContent(); }
+    _closeAllDropdowns();
+}
+
+function _epSettingCopy() {
+    const c = _getCm(_epSettingsLang);
+    if (c) {
+        navigator.clipboard.writeText(c.getValue()).then(() => showToast('Kopyalandı'));
+    }
+    _closeAllDropdowns();
+}
+
+function _epSettingSearch() {
+    _activeTab = _epSettingsLang;
+    window.cm = _getCm(_epSettingsLang);
+    _closeAllDropdowns();
+    _openSearch();
+}
+
+function _closeAllDropdowns() {
+    document.getElementById('cvDropdown').classList.remove('open');
+    document.getElementById('epSettingsDropdown').classList.remove('open');
+    document.getElementById('cvBackdrop').style.display = 'none';
+}
+
+function _switchToolsTab(btn, paneId) {
+    document.querySelectorAll('.tools-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tools-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const pane = document.getElementById(paneId);
+    if (pane) pane.classList.add('active');
+}
+
+// Console çıktısını yakala
+(function _patchConsole() {
+    const _orig = { log: console.log, warn: console.warn, error: console.error };
+    function _appendConsole(type, args) {
+        const el = document.getElementById('consolePlaceholder');
+        if (!el) return;
+        if (el.style.fontStyle === 'italic') { el.textContent = ''; el.style.fontStyle = ''; }
+        const line = document.createElement('div');
+        line.className = 'tools-pane-entry';
+        line.style.color = type === 'error' ? '#ff453a' : type === 'warn' ? '#ffa500' : 'var(--text-primary)';
+        line.textContent = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
+        el.appendChild(line);
+    }
+    console.log   = (...a) => { _orig.log(...a);   _appendConsole('log',  a); };
+    console.warn  = (...a) => { _orig.warn(...a);  _appendConsole('warn', a); };
+    console.error = (...a) => { _orig.error(...a); _appendConsole('error',a); };
+})();
 
 function _updateBBView(view) {
     const btn  = document.getElementById('bbPreviewBtn');
@@ -7254,19 +7786,24 @@ function _buildFullHtml(title) {
 }
 
 function _switchEditorTab(tab) {
-    if (window.cm) _tabs[_activeTab] = cm.getValue();
+    // Eski tab-bar sistemiyle geriye dönük uyumluluk
     _activeTab = tab;
-    document.querySelectorAll('.editor-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-    if (window.cm) {
-        const modeMap = { html: 'htmlmixed', css: 'css', js: 'javascript' };
-        cm.setOption('mode', modeMap[tab]);
-        cm.setValue(_tabs[tab] || '');
-        cm.clearHistory();
-        setTimeout(() => cm.refresh(), 10);
-    } else {
-        document.getElementById('editor').value = _tabs[tab] || '';
-    }
+    window.cm = _getCm(tab);
     code = _mergeBodyContent();
+}
+
+// ── 3-Panel CM yardımcıları ────────────────────────────────────────────
+function _getCm(tab) {
+    const map = { html: window.cmHtml, css: window.cmCss, js: window.cmJs };
+    return map[tab || _activeTab] || null;
+}
+function _allCms() {
+    return [window.cmHtml, window.cmCss, window.cmJs].filter(Boolean);
+}
+function _syncTabsFromCms() {
+    if (window.cmHtml) _tabs.html = window.cmHtml.getValue();
+    if (window.cmCss)  _tabs.css  = window.cmCss.getValue();
+    if (window.cmJs)   _tabs.js   = window.cmJs.getValue();
 }
 
 // ── App Init ───────────────────────────────────────────────────────────
@@ -7426,7 +7963,9 @@ function updateSavedCount() {
 
 // ── Editor ─────────────────────────────────────────────────────────────
 function updateCode() {
-    _tabs[_activeTab] = document.getElementById('editor').value;
+    // CM varsa CM'den al, yoksa gizli textarea'dan
+    _syncTabsFromCms();
+    if (!window.cmHtml) _tabs[_activeTab] = document.getElementById('editor').value;
     code = _mergeBodyContent();
     hasUnsavedChanges = true;
     saveToStorage(); updateTabDotColor(); updateQuickSaveButton();
@@ -7445,18 +7984,19 @@ function _getCMMode(filename) {
     return { html:'htmlmixed', htm:'htmlmixed', js:'javascript', css:'css', xml:'xml', svg:'xml', json:'javascript', md:'markdown', markdown:'markdown' }[ext] || 'htmlmixed';
 }
 function updateEditor() {
-    // Sync tab UI
-    document.querySelectorAll('.editor-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === _activeTab));
-    const content = _tabs[_activeTab] || '';
+    // Üç panelin hepsini güncelle
     const modeMap = { html: 'htmlmixed', css: 'css', js: 'javascript' };
-    if (window.cm) {
-        cm.setOption('mode', modeMap[_activeTab] || _getCMMode(loadedFilename || ''));
-        cm.setValue(content);
-        cm.clearHistory();
-        setTimeout(() => cm.refresh(), 10);
-    } else {
-        document.getElementById('editor').value = content;
-    }
+    (['html','css','js']).forEach(tab => {
+        const c = _getCm(tab);
+        if (c) {
+            c.setOption('mode', modeMap[tab]);
+            c.setValue(_tabs[tab] || '');
+            c.clearHistory();
+            setTimeout(() => c.refresh(), 30);
+        }
+    });
+    // window.cm aktif paneli göstersin
+    window.cm = _getCm(_activeTab);
 }
 
 function handleKeydown(e) {
@@ -7470,37 +8010,48 @@ function handleKeydown(e) {
     }
 }
 
-function _initCodeMirror() {
+function _initCodeMirror() { _initCodeMirrors(); }  // geriye dönük uyumluluk
+
+function _initCodeMirrors() {
     if (typeof CodeMirror === 'undefined') return;
+    if (window.cmHtml) return; // zaten başlatıldı
     const _hasFold = typeof CodeMirror.fold !== 'undefined';
-    window.cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
-        lineNumbers: true,
-        mode: 'htmlmixed',
-        lineWrapping: true,
-        tabSize: 2,
-        indentWithTabs: false,
-        autofocus: false,
-        foldGutter: _hasFold,
-        gutters: _hasFold
-            ? ['CodeMirror-linenumbers', 'CodeMirror-foldgutter']
-            : ['CodeMirror-linenumbers'],
-        extraKeys: {
-            Tab: cm => {
-                if (cm.somethingSelected()) cm.indentSelection('add');
-                else cm.replaceSelection('  ', 'end');
-            },
-            'Shift-Tab': cm => cm.indentSelection('subtract'),
-            'Ctrl-Q':    cm => { try { cm.foldCode(cm.getCursor()); } catch(e){} }
-        }
-    });
-    cm.on('change', () => {
-        _tabs[_activeTab] = cm.getValue();
-        code = _mergeBodyContent();
-        hasUnsavedChanges = true;
-        saveToStorage(); updateTabDotColor(); updateQuickSaveButton();
-        if (saveButtonState === 'saved') setSaveButtonState('idle');
-        if (currentView === 'preview') document.getElementById('previewFrameInline').srcdoc = buildPage();
-    });
+    const gutters = _hasFold
+        ? ['CodeMirror-linenumbers', 'CodeMirror-foldgutter']
+        : ['CodeMirror-linenumbers'];
+    const extraKeys = {
+        Tab: c => { if (c.somethingSelected()) c.indentSelection('add'); else c.replaceSelection('  ','end'); },
+        'Shift-Tab': c => c.indentSelection('subtract'),
+        'Ctrl-Q':    c => { try { c.foldCode(c.getCursor()); } catch(e){} }
+    };
+
+    function _makeCm(textareaId, mode, tabKey) {
+        const el = document.getElementById(textareaId);
+        if (!el) return null;
+        const c = CodeMirror.fromTextArea(el, {
+            lineNumbers: true, mode, lineWrapping: true,
+            tabSize: 2, indentWithTabs: false, autofocus: false,
+            foldGutter: _hasFold, gutters, extraKeys
+        });
+        c.on('change', () => {
+            _tabs[tabKey] = c.getValue();
+            code = _mergeBodyContent();
+            hasUnsavedChanges = true;
+            saveToStorage(); updateTabDotColor(); updateQuickSaveButton();
+            if (saveButtonState === 'saved') setSaveButtonState('idle');
+            if (currentView === 'preview') document.getElementById('previewFrameInline').srcdoc = buildPage();
+        });
+        c.on('focus', () => {
+            _activeTab = tabKey;
+            window.cm = c;
+        });
+        return c;
+    }
+
+    window.cmHtml = _makeCm('editorHtml', 'htmlmixed', 'html');
+    window.cmCss  = _makeCm('editorCss',  'css',       'css');
+    window.cmJs   = _makeCm('editorJs',   'javascript','js');
+    window.cm     = window.cmHtml; // varsayılan aktif panel
 }
 
 // ── Duplicate Modal ────────────────────────────────────────────────────
@@ -13997,5 +14548,8 @@ async function _shareCopyLink() {
     </div>
 </div>
 
+</body>
+</html>
+    </script>
 </body>
 </html>
