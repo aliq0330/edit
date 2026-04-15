@@ -8076,8 +8076,7 @@ function _closeHeaderMenu() {
         const next = epR.nextElementSibling;
         if (!prev || !next) return;
 
-        // Collapsed panel yanındaki resizer sürüklenmez
-        if (prev.classList.contains('ep-collapsed') || next.classList.contains('ep-collapsed')) return;
+      
 
         const vertical = ['left3','right3'].includes(_currentView);
         const pr = prev.getBoundingClientRect();
