@@ -3601,6 +3601,31 @@ body.view-right3 .editors-row .ep {
 body.view-left3 .editors-row .ep.ep-collapsed,
 body.view-right3 .editors-row .ep.ep-collapsed {
     flex: 0 0 28px;
+    min-width: 0;
+    min-height: 28px;
+}
+/* left3/right3 collapsed: yatay şerit — label ve yazı görünür kalır */
+body.view-left3 .editors-row .ep.ep-collapsed .ep-header,
+body.view-right3 .editors-row .ep.ep-collapsed .ep-header {
+    flex-direction: row;
+    height: 28px;
+    padding: 0 4px 0 8px;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--glass-border);
+    cursor: pointer;
+}
+body.view-left3 .editors-row .ep.ep-collapsed .ep-label,
+body.view-right3 .editors-row .ep.ep-collapsed .ep-label {
+    display: flex;
+}
+body.view-left3 .editors-row .ep.ep-collapsed .ep-collapsed-icon,
+body.view-right3 .editors-row .ep.ep-collapsed .ep-collapsed-icon {
+    display: none;
+}
+body.view-left3 .editors-row .ep.ep-collapsed .ep-actions,
+body.view-right3 .editors-row .ep.ep-collapsed .ep-actions {
+    flex-direction: row;
 }
 body.view-left3 .editors-row .ep:last-child,
 body.view-right3 .editors-row .ep:last-child { border-bottom: none; }
