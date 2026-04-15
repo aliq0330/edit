@@ -3479,6 +3479,241 @@ body.view-preview .split-preview { flex: 1; }
 }
 .preview-area.active { display: block; opacity: 1; transform: scale(1); }
 
+/* ══════════════════════════════════════════════════════════════════
+   RESIZE HANDLES
+   ══════════════════════════════════════════════════════════════════ */
+.ep-resizer {
+    width: 5px; flex-shrink: 0; cursor: col-resize;
+    background: transparent; position: relative; z-index: 2;
+    transition: background 0.15s;
+}
+.ep-resizer::after {
+    content: ''; position: absolute; inset: 0 -2px;
+    background: var(--glass-border);
+}
+.ep-resizer:hover::after, .ep-resizer.dragging::after { background: rgba(0,122,255,0.5); }
+
+.split-resizer {
+    height: 6px; flex-shrink: 0; cursor: row-resize;
+    background: transparent; position: relative;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 2; transition: background 0.15s;
+}
+.split-resizer::before {
+    content: ''; position: absolute; inset: -4px 0;
+}
+.split-resizer::after {
+    content: ''; display: block;
+    width: 36px; height: 3px; border-radius: 2px;
+    background: var(--glass-border);
+    transition: background 0.15s, width 0.15s;
+}
+.split-resizer:hover::after, .split-resizer.dragging::after {
+    background: #007aff; width: 48px;
+}
+
+/* left3/right3 modunda split-resizer dikey */
+body.view-left3 .split-resizer,
+body.view-right3 .split-resizer {
+    width: 6px; height: auto;
+    cursor: col-resize;
+    flex-direction: column;
+}
+body.view-left3 .split-resizer::after,
+body.view-right3 .split-resizer::after {
+    width: 3px; height: 36px;
+}
+body.view-left3 .split-resizer:hover::after,
+body.view-right3 .split-resizer:hover::after { height: 48px; width: 3px; }
+
+/* ep-resizer left3/right3'te dikey (panels stacked) */
+body.view-left3 .ep-resizer,
+body.view-right3 .ep-resizer {
+    width: auto; height: 5px; cursor: row-resize;
+}
+body.view-left3 .ep-resizer::after,
+body.view-right3 .ep-resizer::after {
+    inset: -2px 0;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   COLLAPSED PANEL — İKON GÖRÜNÜR KALIR
+   ══════════════════════════════════════════════════════════════════ */
+.ep-collapsed-icon { display: none; }
+.ep.ep-collapsed {
+    flex: 0 0 28px;
+}
+.ep.ep-collapsed .ep-body { display: none; }
+.ep.ep-collapsed .ep-label { display: none; }
+.ep.ep-collapsed .ep-collapsed-icon {
+    display: flex; align-items: center; justify-content: center;
+}
+.ep.ep-collapsed .ep-header {
+    flex-direction: column;
+    height: 100%; padding: 6px 0;
+    justify-content: space-between; align-items: center;
+    border-bottom: none; cursor: pointer; gap: 0;
+}
+.ep.ep-collapsed .ep-actions { flex-direction: column; }
+.ep.ep-collapsed .ep-actions > *:not(.ep-collapse-btn) { display: none; }
+
+/* ══════════════════════════════════════════════════════════════════
+   LEFT3 / RIGHT3 LAYOUTS
+   ══════════════════════════════════════════════════════════════════ */
+body.view-left3 #appMain,
+body.view-right3 #appMain {
+    flex-direction: row;
+}
+body.view-right3 #appMain { flex-direction: row-reverse; }
+
+body.view-left3 .editors-row,
+body.view-right3 .editors-row {
+    flex-direction: column;
+    height: 100%; width: 42%;
+    flex: 0 0 42%; min-height: 0;
+    border-bottom: none;
+    border-right: 1px solid var(--glass-border);
+    overflow: visible;
+}
+body.view-right3 .editors-row {
+    border-right: none;
+    border-left: 1px solid var(--glass-border);
+}
+body.view-left3 .editors-row .ep,
+body.view-right3 .editors-row .ep {
+    flex: 1; min-width: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--glass-border);
+}
+body.view-left3 .editors-row .ep.ep-collapsed,
+body.view-right3 .editors-row .ep.ep-collapsed {
+    flex: 0 0 28px;
+}
+body.view-left3 .editors-row .ep:last-child,
+body.view-right3 .editors-row .ep:last-child { border-bottom: none; }
+/* left3/right3 modunda ep-resizer'lar yatay ayırıcı */
+body.view-left3 .editors-row .ep-resizer,
+body.view-right3 .editors-row .ep-resizer {
+    width: 100%; height: 5px;
+    cursor: row-resize;
+}
+
+body.view-left3 .split-preview,
+body.view-right3 .split-preview {
+    flex: 1; min-height: 0; height: 100%;
+}
+body.view-left3 .tools-bar-wrap,
+body.view-right3 .tools-bar-wrap { display: none; }
+body.view-left3 .editor-search-panel,
+body.view-right3 .editor-search-panel { display: none; }
+/* split-resizer flex-shrink sıfır olsun */
+.split-resizer { flex-shrink: 0; }
+/* Sadece editörler görünümünde split-resizer gizle */
+body.view-editors .split-resizer,
+body.view-preview .split-resizer { display: none; }
+
+/* ══════════════════════════════════════════════════════════════════
+   DESKTOP SOL SIDEBAR (bottom-bar → sidebar)
+   ══════════════════════════════════════════════════════════════════ */
+@media (min-width: 769px) {
+    .bottom-bar {
+        top: 0; bottom: 0; left: 0; right: auto;
+        width: 72px; height: 100%;
+        flex-direction: column;
+        border-top: none;
+        border-right: 1px solid var(--glass-border);
+        padding: 16px 0; padding-bottom: 16px;
+        justify-content: flex-start;
+        gap: 2px;
+        box-shadow: 2px 0 16px rgba(0,0,0,0.06);
+    }
+    .bottom-bar-btn {
+        flex: none; width: 100%; height: 58px;
+        border-radius: 0; gap: 3px;
+        font-size: 9px;
+    }
+    .bottom-bar-btn svg { width: 20px; height: 20px; }
+    /* İçeriği sağa kaydır */
+    .header, .file-title-bar { margin-left: 72px; }
+    #appMain { padding-bottom: 0; }
+    body { padding-left: 72px; }
+    .bottom-bar-btn { position: relative; }
+    .bb-msg-badge { position: absolute; top: 8px; right: 14px; }
+    /* Desktop: file-title-bar gizle (toolbar header'a taşındı) */
+    .file-title-bar { display: none !important; }
+}
+@media (max-width: 768px) {
+    /* Mobile: padding-left olmasın */
+    body { padding-left: 0; }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   HEADER TOOLBAR (dosya işlemleri + change view)
+   ══════════════════════════════════════════════════════════════════ */
+.header-toolbar {
+    display: flex; align-items: center; gap: 3px; flex-shrink: 0;
+}
+.htb {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 5px 9px; border-radius: 8px;
+    background: rgba(120,120,128,0.08); border: 1px solid var(--glass-border);
+    color: var(--text-secondary); font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.14s ease; font-family: inherit;
+    white-space: nowrap;
+}
+.htb:hover { background: rgba(120,120,128,0.16); color: var(--text-primary); }
+.htb:active { transform: scale(0.93); }
+.htb svg { width: 13px; height: 13px; flex-shrink: 0; }
+.htb.htb-save { color: #007aff; border-color: rgba(0,122,255,0.22); background: rgba(0,122,255,0.07); }
+.htb.htb-save:hover { background: rgba(0,122,255,0.13); }
+/* Mobile: toolbar gizle, hamburger göster */
+@media (max-width: 768px) {
+    .header-toolbar { display: none; }
+    .header-menu-btn { display: flex !important; }
+    .header-cv-btn-wrap { display: none !important; }
+}
+.header-menu-btn { display: none; }
+
+/* Header change-view butonu */
+.header-cv-btn-wrap { display: flex; align-items: center; flex-shrink: 0; }
+.header-cv-btn {
+    width: 32px; height: 32px; border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: rgba(120,120,128,0.08);
+    color: var(--text-secondary);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.14s; flex-shrink: 0;
+}
+.header-cv-btn:hover { background: rgba(120,120,128,0.16); color: var(--text-primary); }
+.header-cv-btn:active { transform: scale(0.9); }
+.header-cv-btn svg { width: 14px; height: 14px; }
+
+/* Mobil araç çubuğu dropdown */
+.header-toolbar-dd {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 10px 12px;
+    display: flex; flex-wrap: wrap; gap: 7px;
+    z-index: 450;
+    transform: translateY(-120%);
+    transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+.header-toolbar-dd.open { transform: translateY(52px); }
+.htd-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 13px; border-radius: 10px;
+    background: rgba(120,120,128,0.1); border: 1px solid var(--glass-border);
+    color: var(--text-primary); font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: inherit; transition: all 0.12s;
+}
+.htd-btn:active { transform: scale(0.94); }
+.htd-btn svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--text-secondary); }
+.htd-backdrop { display: none; position: fixed; inset: 0; z-index: 449; }
+.htd-backdrop.open { display: block; }
+
 </style>
 
 </head>
@@ -3564,6 +3799,7 @@ body.view-preview .split-preview { flex: 1; }
 
 <header class="header" id="appHeader" style="display:none;">
     <div class="header-top">
+        <!-- Sol: dosya adı -->
         <div class="header-file-area">
             <span class="sync-dot" id="syncDot" title="Senkronizasyon durumu"></span>
             <span id="editorTitle" class="file-title-name" onclick="startEditingHeaderFilename()">
@@ -3573,7 +3809,43 @@ body.view-preview .split-preview { flex: 1; }
                 </svg>
             </span>
         </div>
+
+        <!-- Orta: dosya işlemleri (desktop'ta görünür) -->
+        <div class="header-toolbar" id="headerToolbar">
+            <button class="htb" id="htbPreviewBtn" onclick="toggleBottomBarView()" title="Önizle / Kod">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <span id="htbPreviewText">Önizle</span>
+            </button>
+            <button class="htb htb-save" id="htbSaveBtn" onclick="handleQuickSave()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 3v5h5M9 17h6M9 13h6"/></svg>
+                Kaydet
+            </button>
+            <button class="htb" id="htbVersionBtn" onclick="openVersionPanel()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Geçmiş<span class="version-badge" id="versionBadge"></span>
+            </button>
+            <button class="htb" onclick="openSaveModal()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                İndir
+            </button>
+            <button class="htb" onclick="loadFile()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                Yükle
+            </button>
+        </div>
+
+        <!-- Sağ: change-view + bildirimler + menü + kullanıcı -->
         <div class="actions">
+            <!-- Change View (header'da) -->
+            <div class="header-cv-btn-wrap" id="headerCvWrap">
+                <button class="header-cv-btn" id="headerCvBtn" onclick="_toggleChangeView(event)" title="Change View">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke-width="2"/></svg>
+                </button>
+            </div>
+            <!-- Mobil hamburger menü -->
+            <button class="header-menu-btn" id="headerMenuBtn" onclick="_toggleHeaderMenu()" title="İşlemler" style="width:32px;height:32px;border-radius:8px;border:1px solid var(--glass-border);background:rgba(120,120,128,0.08);cursor:pointer;display:none;align-items:center;justify-content:center;color:var(--text-secondary);">
+                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6" stroke-width="2.2" stroke-linecap="round"/><line x1="3" y1="12" x2="21" y2="12" stroke-width="2.2" stroke-linecap="round"/><line x1="3" y1="18" x2="21" y2="18" stroke-width="2.2" stroke-linecap="round"/></svg>
+            </button>
             <button class="notif-btn" id="notifBtn" onclick="openNotifPanel()" style="display:none;">
                 <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
@@ -3594,6 +3866,31 @@ body.view-preview .split-preview { flex: 1; }
     <!-- quickSaveBtn gizli, JS uyumluluğu için -->
     <button id="quickSaveBtn" style="display:none;" onclick="handleQuickSave()"></button>
 </header>
+
+<!-- Mobil araç çubuğu dropdown -->
+<div class="header-toolbar-dd" id="headerToolbarDd">
+    <button class="htd-btn" onclick="toggleBottomBarView();_closeHeaderMenu()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        Önizle
+    </button>
+    <button class="htd-btn" onclick="handleQuickSave();_closeHeaderMenu()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 3v5h5M9 17h6M9 13h6"/></svg>
+        Kaydet
+    </button>
+    <button class="htd-btn" onclick="openVersionPanel();_closeHeaderMenu()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Geçmiş
+    </button>
+    <button class="htd-btn" onclick="openSaveModal();_closeHeaderMenu()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+        İndir
+    </button>
+    <button class="htd-btn" onclick="loadFile();_closeHeaderMenu()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+        Yükle
+    </button>
+</div>
+<div class="htd-backdrop" id="htdBackdrop" onclick="_closeHeaderMenu()"></div>
 
 <!-- Dropdown body'e ekleniyor, her zaman üstte -->
 
@@ -4236,11 +4533,15 @@ body.view-preview .split-preview { flex: 1; }
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                     </button>
                 </div>
+                <!-- Collapsed modda gösterilen ikon -->
+                <div class="ep-collapsed-icon"><span class="ep-icon ep-icon-html">H</span></div>
             </div>
             <div class="ep-body" id="epBodyHtml">
                 <textarea id="editorHtml" spellcheck="false"></textarea>
             </div>
         </div>
+
+        <div class="ep-resizer" id="resizerHtmlCss" title="Sürükle"></div>
 
         <!-- CSS Paneli -->
         <div class="ep" id="epCss" data-lang="css">
@@ -4257,11 +4558,14 @@ body.view-preview .split-preview { flex: 1; }
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                     </button>
                 </div>
+                <div class="ep-collapsed-icon"><span class="ep-icon ep-icon-css">C</span></div>
             </div>
             <div class="ep-body" id="epBodyCss">
                 <textarea id="editorCss" spellcheck="false"></textarea>
             </div>
         </div>
+
+        <div class="ep-resizer" id="resizerCssJs" title="Sürükle"></div>
 
         <!-- JS Paneli -->
         <div class="ep" id="epJs" data-lang="js">
@@ -4271,10 +4575,6 @@ body.view-preview .split-preview { flex: 1; }
                     <span class="ep-name">JS</span>
                 </div>
                 <div class="ep-actions">
-                    <!-- Change View butonu -->
-                    <button class="ep-action-btn ep-view-toggle-btn" id="changeViewBtn" onclick="event.stopPropagation();_toggleChangeView(event)" title="Görünümü Değiştir">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke-width="2"/></svg>
-                    </button>
                     <button class="ep-action-btn" onclick="event.stopPropagation();_epSettings(event,'js')" title="Ayarlar">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
@@ -4282,6 +4582,7 @@ body.view-preview .split-preview { flex: 1; }
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                     </button>
                 </div>
+                <div class="ep-collapsed-icon"><span class="ep-icon ep-icon-js">J</span></div>
             </div>
             <div class="ep-body" id="epBodyJs">
                 <textarea id="editorJs" spellcheck="false"></textarea>
@@ -4289,18 +4590,27 @@ body.view-preview .split-preview { flex: 1; }
         </div>
     </div>
 
+    <!-- ── Editörler ↔ Önizleme Boyutlandırıcı ───────────────────── -->
+    <div class="split-resizer" id="splitResizer" title="Sürükle"></div>
+
     <!-- ── Change View Dropdown ───────────────────────────────────── -->
     <div class="cv-dropdown" id="cvDropdown">
         <div class="cv-title">Change View</div>
-        <div class="cv-opts">
-            <button class="cv-opt active" data-view="split" onclick="_setView('split')" title="Editör + Önizleme">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="8" rx="1" stroke-width="2"/><rect x="14" y="3" width="7" height="8" rx="1" stroke-width="2"/><rect x="3" y="14" width="18" height="7" rx="1" stroke-width="2"/></svg>
+        <div class="cv-opts" style="flex-wrap:wrap;gap:5px;">
+            <button class="cv-opt active" data-view="split" onclick="_setView('split')" title="Editörler üstte, Önizleme altta" style="flex:1 1 calc(33% - 4px)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="9" rx="1" stroke-width="2"/><rect x="3" y="14" width="18" height="7" rx="1" stroke-width="2"/></svg>
             </button>
-            <button class="cv-opt" data-view="editors" onclick="_setView('editors')" title="Sadece Editörler">
+            <button class="cv-opt" data-view="editors" onclick="_setView('editors')" title="Sadece Editörler" style="flex:1 1 calc(33% - 4px)">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="12" x2="21" y2="12" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="18" x2="21" y2="18" stroke-width="2" stroke-linecap="round"/></svg>
             </button>
-            <button class="cv-opt" data-view="preview" onclick="_setView('preview')" title="Sadece Önizleme">
+            <button class="cv-opt" data-view="preview" onclick="_setView('preview')" title="Sadece Önizleme" style="flex:1 1 calc(33% - 4px)">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
+            </button>
+            <button class="cv-opt" data-view="left3" onclick="_setView('left3')" title="Editörler solda (alt alta), Önizleme sağda" style="flex:1 1 calc(50% - 4px)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="9" height="4" rx="1" stroke-width="2"/><rect x="3" y="10" width="9" height="4" rx="1" stroke-width="2"/><rect x="3" y="17" width="9" height="4" rx="1" stroke-width="2"/><rect x="14" y="3" width="7" height="18" rx="1" stroke-width="2"/></svg>
+            </button>
+            <button class="cv-opt" data-view="right3" onclick="_setView('right3')" title="Önizleme solda, Editörler sağda (alt alta)" style="flex:1 1 calc(50% - 4px)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="18" rx="1" stroke-width="2"/><rect x="12" y="3" width="9" height="4" rx="1" stroke-width="2"/><rect x="12" y="10" width="9" height="4" rx="1" stroke-width="2"/><rect x="12" y="17" width="9" height="4" rx="1" stroke-width="2"/></svg>
             </button>
         </div>
     </div>
@@ -6064,6 +6374,23 @@ function setSaveButtonState(state) {
             tbBtn.childNodes[tbBtn.childNodes.length - 1].textContent = ' Kaydet';
         }
     }
+    // Header toolbar save butonu
+    const htbSave = document.getElementById('htbSaveBtn');
+    if (htbSave) {
+        if (state === 'saved') {
+            htbSave.style.color = '#34c759';
+            htbSave.onclick = null;
+            const sv = htbSave.querySelector('svg');
+            if (sv) sv.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>';
+            htbSave.childNodes[htbSave.childNodes.length - 1].textContent = ' Kaydedildi';
+        } else {
+            htbSave.style.color = '';
+            htbSave.onclick = handleQuickSave;
+            const sv = htbSave.querySelector('svg');
+            if (sv) sv.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 3v5h5M9 17h6M9 13h6"/>';
+            htbSave.childNodes[htbSave.childNodes.length - 1].textContent = ' Kaydet';
+        }
+    }
     // Eski gizli quickSaveBtn (JS uyumluluğu)
     const btn = document.getElementById('quickSaveBtn');
     if (!btn) return;
@@ -7657,8 +7984,14 @@ let _epSettings_lang = null;
 function _setView(mode) {
     _currentView = mode;
     // body class'larını güncelle
-    document.body.classList.remove('view-split','view-editors','view-preview');
+    document.body.classList.remove('view-split','view-editors','view-preview','view-left3','view-right3');
     document.body.classList.add('view-' + mode);
+    // Resize boyutlarını sıfırla (layout değişince flex basis bozulmasın)
+    document.querySelectorAll('.ep').forEach(el => { el.style.flex = ''; });
+    const er = document.getElementById('editorsRow');
+    const sp = document.getElementById('splitPreview');
+    if (er) er.style.flex = '';
+    if (sp) sp.style.flex = '';
     // Preview iframe'i güncelle
     if (mode !== 'editors') {
         document.getElementById('previewFrameInline').srcdoc = buildPage();
@@ -7668,7 +8001,7 @@ function _setView(mode) {
         b.classList.toggle('active', b.dataset.view === mode);
     });
     // Tüm cm'leri refresh et
-    setTimeout(() => _allCms().forEach(c => c.refresh()), 50);
+    setTimeout(() => _allCms().forEach(c => c.refresh()), 80);
     _closeAllDropdowns();
 }
 
@@ -7692,7 +8025,9 @@ function _togglePanel(lang) {
 
 function _toggleChangeView(event) {
     const dd = document.getElementById('cvDropdown');
-    const btn = document.getElementById('changeViewBtn');
+    // Support both the bottom-bar button and the header button
+    const triggerEl = event && event.currentTarget ? event.currentTarget : null;
+    const btn = triggerEl || document.getElementById('headerCvBtn') || document.getElementById('changeViewBtn');
     const isOpen = dd.classList.contains('open');
     _closeAllDropdowns();
     if (!isOpen) {
@@ -7703,7 +8038,7 @@ function _toggleChangeView(event) {
         dd.classList.add('open');
         document.getElementById('cvBackdrop').style.display = 'block';
     }
-    event.stopPropagation();
+    if (event) event.stopPropagation();
 }
 
 let _epSettingsLang = null;
@@ -7751,6 +8086,145 @@ function _closeAllDropdowns() {
     document.getElementById('cvBackdrop').style.display = 'none';
 }
 
+/* ── Header Mobile Menu ── */
+function _toggleHeaderMenu() {
+    const dd = document.getElementById('headerToolbarDd');
+    const bd = document.getElementById('htdBackdrop');
+    if (!dd) return;
+    const opening = !dd.classList.contains('open');
+    dd.classList.toggle('open', opening);
+    if (bd) bd.style.display = opening ? 'block' : 'none';
+}
+function _closeHeaderMenu() {
+    const dd = document.getElementById('headerToolbarDd');
+    const bd = document.getElementById('htdBackdrop');
+    if (dd) dd.classList.remove('open');
+    if (bd) bd.style.display = 'none';
+}
+
+/* ── Panel Drag-Resize (ep-resizer) ── */
+(function _initPanelResize() {
+    let state = null;
+
+    function onStart(clientX, clientY, target) {
+        const r = target.closest('.ep-resizer');
+        if (!r) return false;
+        const prev = r.previousElementSibling;
+        const next = r.nextElementSibling;
+        if (!prev || !next) return false;
+        const vertical = ['left3','right3'].includes(_currentView);
+        const pr = prev.getBoundingClientRect();
+        const nr = next.getBoundingClientRect();
+        const total = vertical ? (pr.height + nr.height) : (pr.width + nr.width);
+        state = {
+            r, prev, next, vertical,
+            startPos: vertical ? clientY : clientX,
+            prevSize: vertical ? pr.height : pr.width,
+            nextSize: vertical ? nr.height : nr.width,
+            total,
+        };
+        r.classList.add('dragging');
+        document.body.style.userSelect = 'none';
+        return true;
+    }
+
+    function onMove(clientX, clientY) {
+        if (!state) return;
+        const delta = (state.vertical ? clientY : clientX) - state.startPos;
+        const minSize = 40;
+        let newPrev = Math.max(minSize, state.prevSize + delta);
+        let newNext = Math.max(minSize, state.total - newPrev);
+        if (newNext < minSize) { newNext = minSize; newPrev = state.total - minSize; }
+        // Use flex basis
+        state.prev.style.flex = `0 0 ${newPrev}px`;
+        state.next.style.flex = `0 0 ${newNext}px`;
+    }
+
+    function onEnd() {
+        if (!state) return;
+        state.r.classList.remove('dragging');
+        document.body.style.userSelect = '';
+        setTimeout(() => _allCms().forEach(c => c.refresh()), 30);
+        state = null;
+    }
+
+    // Mouse
+    document.addEventListener('mousedown', e => { onStart(e.clientX, e.clientY, e.target); }, true);
+    document.addEventListener('mousemove', e => { if (state) { e.preventDefault(); onMove(e.clientX, e.clientY); } });
+    document.addEventListener('mouseup', () => onEnd());
+
+    // Touch
+    document.addEventListener('touchstart', e => {
+        if (e.touches.length === 1) onStart(e.touches[0].clientX, e.touches[0].clientY, e.target);
+    }, { passive: true });
+    document.addEventListener('touchmove', e => {
+        if (state) { e.preventDefault(); onMove(e.touches[0].clientX, e.touches[0].clientY); }
+    }, { passive: false });
+    document.addEventListener('touchend', () => onEnd());
+})();
+
+/* ── Split Drag-Resize (split-resizer) ── */
+(function _initSplitResize() {
+    let state = null;
+
+    function onStart(clientX, clientY, target) {
+        const r = target.closest('.split-resizer');
+        if (!r) return false;
+        const er = document.getElementById('editorsRow');
+        const sp = document.getElementById('splitPreview');
+        if (!er || !sp) return false;
+        const vertical = ['left3','right3'].includes(_currentView);
+        const er_r = er.getBoundingClientRect();
+        const sp_r = sp.getBoundingClientRect();
+        const total = vertical ? (er_r.width + sp_r.width) : (er_r.height + sp_r.height);
+        state = {
+            r, er, sp, vertical,
+            startPos: vertical ? clientX : clientY,
+            erSize: vertical ? er_r.width : er_r.height,
+            spSize: vertical ? sp_r.width : sp_r.height,
+            total,
+        };
+        r.classList.add('dragging');
+        document.body.style.userSelect = 'none';
+        return true;
+    }
+
+    function onMove(clientX, clientY) {
+        if (!state) return;
+        const delta = (state.vertical ? clientX : clientY) - state.startPos;
+        const minSize = 80;
+        let newEr = Math.max(minSize, state.erSize + delta);
+        let newSp = Math.max(minSize, state.total - newEr);
+        if (newSp < minSize) { newSp = minSize; newEr = state.total - minSize; }
+        state.er.style.flex = `0 0 ${newEr}px`;
+        state.sp.style.flex = `0 0 ${newSp}px`;
+    }
+
+    function onEnd() {
+        if (!state) return;
+        state.r.classList.remove('dragging');
+        document.body.style.userSelect = '';
+        setTimeout(() => _allCms().forEach(c => c.refresh()), 30);
+        state = null;
+    }
+
+    // Mouse — use capture to intercept before panel resizer
+    document.addEventListener('mousedown', e => {
+        if (!state) onStart(e.clientX, e.clientY, e.target);
+    }, true);
+    document.addEventListener('mousemove', e => { if (state) { e.preventDefault(); onMove(e.clientX, e.clientY); } });
+    document.addEventListener('mouseup', () => onEnd());
+
+    // Touch
+    document.addEventListener('touchstart', e => {
+        if (!state && e.touches.length === 1) onStart(e.touches[0].clientX, e.touches[0].clientY, e.target);
+    }, { passive: true });
+    document.addEventListener('touchmove', e => {
+        if (state) { e.preventDefault(); onMove(e.touches[0].clientX, e.touches[0].clientY); }
+    }, { passive: false });
+    document.addEventListener('touchend', () => onEnd());
+})();
+
 function _switchToolsTab(btn, paneId) {
     document.querySelectorAll('.tools-tab').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tools-pane').forEach(p => p.classList.remove('active'));
@@ -7785,9 +8259,17 @@ function _updateBBView(view) {
     const isPreview = view === 'preview';
     btn.classList.toggle('bb-active', isPreview);
     if (text) text.textContent = isPreview ? 'Kod' : 'Önizle';
-    if (icon) icon.innerHTML = isPreview
-        ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>'
-        : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+    const eyePath  = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+    const codePath = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>';
+    if (icon) icon.innerHTML = isPreview ? codePath : eyePath;
+    // Header toolbar preview button
+    const htbPrev = document.getElementById('htbPreviewBtn');
+    if (htbPrev) {
+        htbPrev.classList.toggle('bb-active', isPreview);
+        const htbIcon = htbPrev.querySelector('svg');
+        if (htbIcon) htbIcon.innerHTML = isPreview ? codePath : eyePath;
+        htbPrev.childNodes[htbPrev.childNodes.length - 1].textContent = isPreview ? ' Kod' : ' Önizle';
+    }
 }
 
 function syncSwitchers(view) {
