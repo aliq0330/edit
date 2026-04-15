@@ -371,7 +371,6 @@ svg { display: block; flex-shrink: 0; }
 
 /* Önizleme modunda header ve title bar gizli */
 body.preview-mode .header { display: none !important; }
-body.preview-mode .file-title-bar { display: none !important; }
 body.preview-mode .bottom-bar { display: none !important; }
 body.preview-mode .toast { bottom: 20px; }
 
@@ -1655,16 +1654,6 @@ body.preview-mode .fab-container { opacity: 0; pointer-events: none; transform: 
 }
 
 /* ── ARAÇ ÇUBUĞU (İndir/Yükle) ──────────────────────────── */
-.file-title-bar {
-    background: var(--glass-bg);
-    backdrop-filter: saturate(var(--saturation)) blur(var(--blur));
-    -webkit-backdrop-filter: saturate(var(--saturation)) blur(var(--blur));
-    border-bottom: 1px solid var(--glass-border);
-    padding: 8px 16px;
-    display: flex; align-items: center; gap: 8px;
-    flex-shrink: 0; position: relative; z-index: 39;
-}
-body.preview-mode .file-title-bar { display: none !important; }
 .toolbar-btn {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 7px 14px; border-radius: 12px;
@@ -3485,7 +3474,7 @@ body.view-preview .split-preview { flex: 1; }
 .ep-resizer {
     width: 5px; flex-shrink: 0; cursor: col-resize;
     background: transparent; position: relative; z-index: 2;
-    transition: background 0.15s;
+    touch-action: none; transition: background 0.15s;
 }
 .ep-resizer::after {
     content: ''; position: absolute; inset: 0 -2px;
@@ -3497,7 +3486,7 @@ body.view-preview .split-preview { flex: 1; }
     height: 6px; flex-shrink: 0; cursor: row-resize;
     background: transparent; position: relative;
     display: flex; align-items: center; justify-content: center;
-    z-index: 2; transition: background 0.15s;
+    z-index: 2; touch-action: none; transition: background 0.15s;
 }
 .split-resizer::before {
     content: ''; position: absolute; inset: -4px 0;
@@ -3542,6 +3531,8 @@ body.view-right3 .ep-resizer::after {
 .ep-collapsed-icon { display: none; }
 .ep.ep-collapsed {
     flex: 0 0 28px;
+    min-width: 28px;
+    overflow: hidden;
 }
 .ep.ep-collapsed .ep-body { display: none; }
 .ep.ep-collapsed .ep-label { display: none; }
@@ -3556,6 +3547,27 @@ body.view-right3 .ep-resizer::after {
 }
 .ep.ep-collapsed .ep-actions { flex-direction: column; }
 .ep.ep-collapsed .ep-actions > *:not(.ep-collapse-btn) { display: none; }
+
+/* ── Mobilde daraltılmış panel: sadece ikon, tab menüsü gibi ── */
+@media (max-width: 768px) {
+    .ep.ep-collapsed {
+        flex: 0 0 32px;
+        min-width: 32px;
+    }
+    /* Sadece ikon göster — butonları tamamen gizle */
+    .ep.ep-collapsed .ep-actions { display: none; }
+    /* İkonu ortala */
+    .ep.ep-collapsed .ep-header {
+        justify-content: center;
+        padding: 0;
+        gap: 0;
+    }
+    .ep.ep-collapsed .ep-collapsed-icon .ep-icon {
+        width: 22px; height: 22px;
+        font-size: 10px;
+        border-radius: 5px;
+    }
+}
 
 /* ══════════════════════════════════════════════════════════════════
    LEFT3 / RIGHT3 LAYOUTS
@@ -3634,13 +3646,11 @@ body.view-preview .split-resizer { display: none; }
     }
     .bottom-bar-btn svg { width: 20px; height: 20px; }
     /* İçeriği sağa kaydır */
-    .header, .file-title-bar { margin-left: 72px; }
+    .header { margin-left: 72px; }
     #appMain { padding-bottom: 0; }
     body { padding-left: 72px; }
     .bottom-bar-btn { position: relative; }
     .bb-msg-badge { position: absolute; top: 8px; right: 14px; }
-    /* Desktop: file-title-bar gizle (toolbar header'a taşındı) */
-    .file-title-bar { display: none !important; }
 }
 @media (max-width: 768px) {
     /* Mobile: padding-left olmasın */
@@ -4478,41 +4488,7 @@ body.view-preview .split-resizer { display: none; }
     </button>
 </div>
 
-<div class="file-title-bar" id="fileTitleBar" style="display:none;">
-    <button class="toolbar-btn" id="bbPreviewBtn" onclick="toggleBottomBarView()">
-        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="bbPreviewIcon">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-        </svg>
-        <span id="bbPreviewText">Önizle</span>
-    </button>
-    <button class="toolbar-btn" id="toolbarSaveBtn" onclick="handleQuickSave()">
-        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 3v5h5M9 17h6M9 13h6"/>
-        </svg>
-        Kaydet
-    </button>
-    <button class="toolbar-btn" id="toolbarVersionBtn" onclick="openVersionPanel()" title="Versiyon Geçmişi">
-        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        Geçmiş<span class="version-badge" id="versionBadge"></span>
-    </button>
-    <button class="toolbar-btn" onclick="openSaveModal()">
-        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
-        </svg>
-        İndir
-    </button>
-    <button class="toolbar-btn" onclick="loadFile()">
-        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
-        </svg>
-        Yükle
-    </button>
-    <input type="file" id="fileInput" accept=".html,.htm,.txt,.text,.js,.css,.json,.xml,.md" style="display:none" onchange="handleFileLoad(event)">
-</div>
-
+<input type="file" id="fileInput" accept=".html,.htm,.txt,.text,.js,.css,.json,.xml,.md" style="display:none" onchange="handleFileLoad(event)">
 <main id="appMain" style="display:none;">
 
     <!-- ── 3 Yan Yana Editor Paneli ──────────────────────────────── -->
@@ -6359,21 +6335,6 @@ let swipeHintShown    = localStorage.getItem(HINT_SHOWN_KEY) === '1';
 // ── Kaydet Butonu Durum Yönetimi ───────────────────────────────────────
 function setSaveButtonState(state) {
     saveButtonState = state;
-    // Bottom bar save butonu
-    const tbBtn = document.getElementById('toolbarSaveBtn');
-    if (tbBtn) {
-        if (state === 'saved') {
-            tbBtn.style.color = '#34c759';
-            tbBtn.onclick = null;
-            tbBtn.querySelector('svg').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>';
-            tbBtn.childNodes[tbBtn.childNodes.length - 1].textContent = ' Kaydedildi';
-        } else {
-            tbBtn.style.color = '';
-            tbBtn.onclick = handleQuickSave;
-            tbBtn.querySelector('svg').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 3v5h5M9 17h6M9 13h6"/>';
-            tbBtn.childNodes[tbBtn.childNodes.length - 1].textContent = ' Kaydet';
-        }
-    }
     // Header toolbar save butonu
     const htbSave = document.getElementById('htbSaveBtn');
     if (htbSave) {
@@ -6523,7 +6484,6 @@ function showAuthScreen() {
     document.getElementById('authScreen').style.display = 'flex';
     setTimeout(() => document.getElementById('authScreen').classList.remove('hide'), 10);
     document.getElementById('appHeader').style.display    = 'none';
-    document.getElementById('fileTitleBar').style.display = 'none';
     document.getElementById('bottomBar').style.display    = 'none';
     document.getElementById('appMain').style.display      = 'none';
     document.getElementById('fabContainer').style.display = 'none';
@@ -6537,7 +6497,6 @@ function hideAuthScreen() {
 
 function showApp() {
     document.getElementById('appHeader').style.display    = '';
-    document.getElementById('fileTitleBar').style.display = '';
     document.getElementById('bottomBar').style.display    = '';
     document.getElementById('appMain').style.display      = '';
     document.getElementById('fabContainer').style.display = '';
@@ -7223,11 +7182,12 @@ function _hideOldVersionBanner() {
 
 // Eski versiyon açıkken kaydet butonunu "Bu Versiyonu Geri Yükle" olarak güncelle
 function _setOldVersionSaveBtn(versionNum) {
-    const tbBtn = document.getElementById('toolbarSaveBtn');
+    const tbBtn = document.getElementById('htbSaveBtn');
     if (!tbBtn) return;
     tbBtn.style.color = '#ff9f0a';
     tbBtn.onclick = () => restoreVersionFromSaveBtn(versionNum);
-    tbBtn.querySelector('svg').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>';
+    const sv = tbBtn.querySelector('svg');
+    if (sv) sv.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>';
     tbBtn.childNodes[tbBtn.childNodes.length - 1].textContent = ` v${versionNum}'ü Geri Yükle`;
 }
 
@@ -8102,127 +8062,84 @@ function _closeHeaderMenu() {
     if (bd) bd.style.display = 'none';
 }
 
-/* ── Panel Drag-Resize (ep-resizer) ── */
-(function _initPanelResize() {
-    let state = null;
+/* ── Unified Drag-Resize (Pointer Events API) ── */
+(function _initResize() {
+    let panel = null;  // ep-resizer state
+    let split = null;  // split-resizer state
 
-    function onStart(clientX, clientY, target) {
-        const r = target.closest('.ep-resizer');
-        if (!r) return false;
-        const prev = r.previousElementSibling;
-        const next = r.nextElementSibling;
-        if (!prev || !next) return false;
-        const vertical = ['left3','right3'].includes(_currentView);
-        const pr = prev.getBoundingClientRect();
-        const nr = next.getBoundingClientRect();
-        const total = vertical ? (pr.height + nr.height) : (pr.width + nr.width);
-        state = {
-            r, prev, next, vertical,
-            startPos: vertical ? clientY : clientX,
-            prevSize: vertical ? pr.height : pr.width,
-            nextSize: vertical ? nr.height : nr.width,
-            total,
-        };
-        r.classList.add('dragging');
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+    document.addEventListener('pointerdown', function(e) {
+        const epR = e.target.closest('.ep-resizer');
+        const spR = e.target.closest('.split-resizer');
+        if (!epR && !spR) return;
+
+        e.preventDefault();
+
+        if (epR && !panel) {
+            const prev = epR.previousElementSibling;
+            const next = epR.nextElementSibling;
+            if (!prev || !next) return;
+            const vertical = ['left3','right3'].includes(_currentView);
+            const pr = prev.getBoundingClientRect();
+            const nr = next.getBoundingClientRect();
+            panel = {
+                r: epR, prev, next, vertical,
+                startPos: vertical ? e.clientY : e.clientX,
+                prevSize: vertical ? pr.height : pr.width,
+                total: vertical ? (pr.height + nr.height) : (pr.width + nr.width),
+            };
+            epR.setPointerCapture(e.pointerId);
+            epR.classList.add('dragging');
+        } else if (spR && !split) {
+            const er = document.getElementById('editorsRow');
+            const sp = document.getElementById('splitPreview');
+            if (!er || !sp) return;
+            const vertical = ['left3','right3'].includes(_currentView);
+            const er_r = er.getBoundingClientRect();
+            const sp_r = sp.getBoundingClientRect();
+            split = {
+                r: spR, er, sp, vertical,
+                startPos: vertical ? e.clientX : e.clientY,
+                erSize: vertical ? er_r.width : er_r.height,
+                total: vertical ? (er_r.width + sp_r.width) : (er_r.height + sp_r.height),
+            };
+            spR.setPointerCapture(e.pointerId);
+            spR.classList.add('dragging');
+        }
         document.body.style.userSelect = 'none';
-        return true;
-    }
+    });
 
-    function onMove(clientX, clientY) {
-        if (!state) return;
-        const delta = (state.vertical ? clientY : clientX) - state.startPos;
-        const minSize = 40;
-        let newPrev = Math.max(minSize, state.prevSize + delta);
-        let newNext = Math.max(minSize, state.total - newPrev);
-        if (newNext < minSize) { newNext = minSize; newPrev = state.total - minSize; }
-        // Use flex basis
-        state.prev.style.flex = `0 0 ${newPrev}px`;
-        state.next.style.flex = `0 0 ${newNext}px`;
-    }
+    document.addEventListener('pointermove', function(e) {
+        if (panel) {
+            const delta = (panel.vertical ? e.clientY : e.clientX) - panel.startPos;
+            const minPx = 32;
+            const maxPx = panel.total - minPx;
+            const newPrev = clamp(panel.prevSize + delta, minPx, maxPx);
+            const newNext = panel.total - newPrev;
+            panel.prev.style.flex = `0 0 ${newPrev}px`;
+            panel.next.style.flex = `0 0 ${newNext}px`;
+        }
+        if (split) {
+            const delta = (split.vertical ? e.clientX : e.clientY) - split.startPos;
+            const minPx = 60;
+            const maxPx = split.total - minPx;
+            const newEr = clamp(split.erSize + delta, minPx, maxPx);
+            const newSp = split.total - newEr;
+            split.er.style.flex = `0 0 ${newEr}px`;
+            split.sp.style.flex = `0 0 ${newSp}px`;
+        }
+    });
 
     function onEnd() {
-        if (!state) return;
-        state.r.classList.remove('dragging');
+        if (panel) { panel.r.classList.remove('dragging'); panel = null; }
+        if (split) { split.r.classList.remove('dragging'); split = null; }
         document.body.style.userSelect = '';
-        setTimeout(() => _allCms().forEach(c => c.refresh()), 30);
-        state = null;
+        setTimeout(() => _allCms().forEach(c => c.refresh()), 40);
     }
 
-    // Mouse
-    document.addEventListener('mousedown', e => { onStart(e.clientX, e.clientY, e.target); }, true);
-    document.addEventListener('mousemove', e => { if (state) { e.preventDefault(); onMove(e.clientX, e.clientY); } });
-    document.addEventListener('mouseup', () => onEnd());
-
-    // Touch
-    document.addEventListener('touchstart', e => {
-        if (e.touches.length === 1) onStart(e.touches[0].clientX, e.touches[0].clientY, e.target);
-    }, { passive: true });
-    document.addEventListener('touchmove', e => {
-        if (state) { e.preventDefault(); onMove(e.touches[0].clientX, e.touches[0].clientY); }
-    }, { passive: false });
-    document.addEventListener('touchend', () => onEnd());
-})();
-
-/* ── Split Drag-Resize (split-resizer) ── */
-(function _initSplitResize() {
-    let state = null;
-
-    function onStart(clientX, clientY, target) {
-        const r = target.closest('.split-resizer');
-        if (!r) return false;
-        const er = document.getElementById('editorsRow');
-        const sp = document.getElementById('splitPreview');
-        if (!er || !sp) return false;
-        const vertical = ['left3','right3'].includes(_currentView);
-        const er_r = er.getBoundingClientRect();
-        const sp_r = sp.getBoundingClientRect();
-        const total = vertical ? (er_r.width + sp_r.width) : (er_r.height + sp_r.height);
-        state = {
-            r, er, sp, vertical,
-            startPos: vertical ? clientX : clientY,
-            erSize: vertical ? er_r.width : er_r.height,
-            spSize: vertical ? sp_r.width : sp_r.height,
-            total,
-        };
-        r.classList.add('dragging');
-        document.body.style.userSelect = 'none';
-        return true;
-    }
-
-    function onMove(clientX, clientY) {
-        if (!state) return;
-        const delta = (state.vertical ? clientX : clientY) - state.startPos;
-        const minSize = 80;
-        let newEr = Math.max(minSize, state.erSize + delta);
-        let newSp = Math.max(minSize, state.total - newEr);
-        if (newSp < minSize) { newSp = minSize; newEr = state.total - minSize; }
-        state.er.style.flex = `0 0 ${newEr}px`;
-        state.sp.style.flex = `0 0 ${newSp}px`;
-    }
-
-    function onEnd() {
-        if (!state) return;
-        state.r.classList.remove('dragging');
-        document.body.style.userSelect = '';
-        setTimeout(() => _allCms().forEach(c => c.refresh()), 30);
-        state = null;
-    }
-
-    // Mouse — use capture to intercept before panel resizer
-    document.addEventListener('mousedown', e => {
-        if (!state) onStart(e.clientX, e.clientY, e.target);
-    }, true);
-    document.addEventListener('mousemove', e => { if (state) { e.preventDefault(); onMove(e.clientX, e.clientY); } });
-    document.addEventListener('mouseup', () => onEnd());
-
-    // Touch
-    document.addEventListener('touchstart', e => {
-        if (!state && e.touches.length === 1) onStart(e.touches[0].clientX, e.touches[0].clientY, e.target);
-    }, { passive: true });
-    document.addEventListener('touchmove', e => {
-        if (state) { e.preventDefault(); onMove(e.touches[0].clientX, e.touches[0].clientY); }
-    }, { passive: false });
-    document.addEventListener('touchend', () => onEnd());
+    document.addEventListener('pointerup', onEnd);
+    document.addEventListener('pointercancel', onEnd);
 })();
 
 function _switchToolsTab(btn, paneId) {
@@ -8252,23 +8169,17 @@ function _switchToolsTab(btn, paneId) {
 })();
 
 function _updateBBView(view) {
-    const btn  = document.getElementById('bbPreviewBtn');
-    const text = document.getElementById('bbPreviewText');
-    const icon = document.getElementById('bbPreviewIcon');
-    if (!btn) return;
     const isPreview = view === 'preview';
-    btn.classList.toggle('bb-active', isPreview);
-    if (text) text.textContent = isPreview ? 'Kod' : 'Önizle';
     const eyePath  = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
     const codePath = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>';
-    if (icon) icon.innerHTML = isPreview ? codePath : eyePath;
     // Header toolbar preview button
     const htbPrev = document.getElementById('htbPreviewBtn');
     if (htbPrev) {
         htbPrev.classList.toggle('bb-active', isPreview);
         const htbIcon = htbPrev.querySelector('svg');
         if (htbIcon) htbIcon.innerHTML = isPreview ? codePath : eyePath;
-        htbPrev.childNodes[htbPrev.childNodes.length - 1].textContent = isPreview ? ' Kod' : ' Önizle';
+        const htbText = htbPrev.querySelector('span');
+        if (htbText) htbText.textContent = isPreview ? 'Kod' : 'Önizle';
     }
 }
 
