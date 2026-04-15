@@ -3160,6 +3160,8 @@ body.preview-mode .file-title-bar { display: none !important; }
     flex: 1;
     min-height: 0;
     overflow: hidden;
+    /* bottom-bar (fixed, 60px) üstünde kalsın */
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
 }
 
 /* ── Editors Row ─────────────────────────────────────────────── */
@@ -3179,42 +3181,71 @@ body.view-preview .editors-row { height: 0; min-height: 0; border-bottom: none; 
 /* ── Editor Panel (ep) ───────────────────────────────────────── */
 .ep {
     flex: 1;
-    min-width: 36px;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     border-right: 1px solid var(--glass-border);
     overflow: hidden;
-    transition: flex 0.28s cubic-bezier(0.4,0,0.2,1), min-width 0.28s ease;
+    transition: flex 0.28s cubic-bezier(0.4,0,0.2,1);
     position: relative;
 }
 .ep:last-child { border-right: none; }
+
+/* Küçültülmüş panel: sadece 28px şerit — tek buton sığar */
 .ep.ep-collapsed {
-    flex: 0 0 36px;
-    min-width: 36px;
+    flex: 0 0 28px;
 }
-.ep.ep-collapsed .ep-body { visibility: hidden; pointer-events: none; }
+/* Küçültülmüş panelde body tamamen gizle */
+.ep.ep-collapsed .ep-body {
+    display: none;
+}
+/* Küçültülmüş panelde header: tek buton, ortalı, tıklanabilir şerit */
+.ep.ep-collapsed .ep-header {
+    padding: 0;
+    justify-content: center;
+    cursor: pointer;
+    flex-direction: column;
+    height: 100%;
+    border-bottom: none;
+    border-right: 1px solid var(--glass-border);
+    gap: 6px;
+}
+.ep.ep-collapsed:last-child .ep-header { border-right: none; }
+/* Küçültülmüş halde label gizle, sadece expand butonu ve ikon kalsın */
+.ep.ep-collapsed .ep-label { display: none; }
+/* Tüm butonları gizle, sadece collapse butonu görünsün */
+.ep.ep-collapsed .ep-actions > *:not(.ep-collapse-btn) { display: none; }
+/* Collapsed halde lang ikonu dikey göster */
+.ep.ep-collapsed .ep-collapsed-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    writing-mode: vertical-rl;
+}
+.ep-collapsed-indicator { display: none; }
 
 .ep-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 6px 0 10px;
+    padding: 0 4px 0 8px;
     height: 34px;
     flex-shrink: 0;
     background: rgba(0,0,0,0.18);
     border-bottom: 1px solid var(--glass-border);
     user-select: none;
+    gap: 4px;
 }
 
 .ep-label {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     overflow: hidden;
     flex: 1;
     min-width: 0;
 }
-.ep-collapsed .ep-label { overflow: visible; }
 
 .ep-name {
     font-family: 'JetBrains Mono','SF Mono',monospace;
@@ -3223,15 +3254,15 @@ body.view-preview .editors-row { height: 0; min-height: 0; border-bottom: none; 
     letter-spacing: 0.04em;
     color: var(--text-secondary);
     white-space: nowrap;
-    transition: opacity 0.2s;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.ep-collapsed .ep-name { opacity: 0; pointer-events: none; }
 
 .ep-icon {
-    width: 18px; height: 18px;
-    border-radius: 4px;
+    width: 17px; height: 17px;
+    border-radius: 3px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 9px; font-weight: 800;
+    font-size: 8px; font-weight: 800;
     flex-shrink: 0;
     letter-spacing: -0.02em;
 }
@@ -3262,6 +3293,25 @@ body.view-preview .editors-row { height: 0; min-height: 0; border-bottom: none; 
 .ep-action-btn:active { transform: scale(0.88); }
 .ep-action-btn svg { width: 13px; height: 13px; }
 .ep-action-btn.ep-view-toggle-btn svg { width: 14px; height: 14px; }
+
+/* ── Mobil: çok dar ekranlarda gizle/küçült ──────────────────── */
+@media (max-width: 480px) {
+    .editors-row { height: 44vh; min-height: 130px; }
+    .ep-header { padding: 0 2px 0 5px; gap: 2px; }
+    /* Paneller yeterince genişken adı göster, dar olunca sadece ikon */
+    .ep-name { display: none; }
+    .ep-icon { width: 16px; height: 16px; font-size: 8px; }
+    /* Settings ve view-toggle butonları mobilde gizle, sadece collapse kalsın */
+    .ep-action-btn:not(.ep-collapse-btn):not(.ep-view-toggle-btn) { display: none; }
+    .ep-action-btn { width: 24px; height: 24px; }
+    /* JS panelindeki view toggle mobilde küçük kalsın */
+    .ep-action-btn.ep-view-toggle-btn { width: 24px; height: 24px; }
+    /* Editörler row daha az yer kaplasın ki önizleme sığsın */
+    body.view-editors .editors-row { height: calc(100dvh - 200px); }
+}
+@media (max-width: 360px) {
+    .ep-view-toggle-btn { display: none !important; }
+}
 
 .ep-body {
     flex: 1;
@@ -4173,16 +4223,16 @@ body.view-preview .split-preview { flex: 1; }
 
         <!-- HTML Paneli -->
         <div class="ep" id="epHtml" data-lang="html">
-            <div class="ep-header">
+            <div class="ep-header" onclick="document.getElementById('epHtml').classList.contains('ep-collapsed')&&_togglePanel('html')">
                 <div class="ep-label">
                     <span class="ep-icon ep-icon-html">H</span>
                     <span class="ep-name">HTML</span>
                 </div>
                 <div class="ep-actions">
-                    <button class="ep-action-btn" onclick="_epSettings(event,'html')" title="Ayarlar">
+                    <button class="ep-action-btn" onclick="event.stopPropagation();_epSettings(event,'html')" title="Ayarlar">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
-                    <button class="ep-action-btn" onclick="_togglePanel('html')" title="Küçült / Büyüt" id="epCollapseHtml">
+                    <button class="ep-action-btn ep-collapse-btn" onclick="event.stopPropagation();_togglePanel('html')" title="Küçült / Büyüt" id="epCollapseHtml">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                     </button>
                 </div>
@@ -4194,16 +4244,16 @@ body.view-preview .split-preview { flex: 1; }
 
         <!-- CSS Paneli -->
         <div class="ep" id="epCss" data-lang="css">
-            <div class="ep-header">
+            <div class="ep-header" onclick="document.getElementById('epCss').classList.contains('ep-collapsed')&&_togglePanel('css')">
                 <div class="ep-label">
                     <span class="ep-icon ep-icon-css">C</span>
                     <span class="ep-name">CSS</span>
                 </div>
                 <div class="ep-actions">
-                    <button class="ep-action-btn" onclick="_epSettings(event,'css')" title="Ayarlar">
+                    <button class="ep-action-btn" onclick="event.stopPropagation();_epSettings(event,'css')" title="Ayarlar">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
-                    <button class="ep-action-btn" onclick="_togglePanel('css')" title="Küçült / Büyüt" id="epCollapseCss">
+                    <button class="ep-action-btn ep-collapse-btn" onclick="event.stopPropagation();_togglePanel('css')" title="Küçült / Büyüt" id="epCollapseCss">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                     </button>
                 </div>
@@ -4215,20 +4265,20 @@ body.view-preview .split-preview { flex: 1; }
 
         <!-- JS Paneli -->
         <div class="ep" id="epJs" data-lang="js">
-            <div class="ep-header">
+            <div class="ep-header" onclick="document.getElementById('epJs').classList.contains('ep-collapsed')&&_togglePanel('js')">
                 <div class="ep-label">
                     <span class="ep-icon ep-icon-js">J</span>
                     <span class="ep-name">JS</span>
                 </div>
                 <div class="ep-actions">
                     <!-- Change View butonu -->
-                    <button class="ep-action-btn ep-view-toggle-btn" id="changeViewBtn" onclick="_toggleChangeView(event)" title="Görünümü Değiştir">
+                    <button class="ep-action-btn ep-view-toggle-btn" id="changeViewBtn" onclick="event.stopPropagation();_toggleChangeView(event)" title="Görünümü Değiştir">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke-width="2"/></svg>
                     </button>
-                    <button class="ep-action-btn" onclick="_epSettings(event,'js')" title="Ayarlar">
+                    <button class="ep-action-btn" onclick="event.stopPropagation();_epSettings(event,'js')" title="Ayarlar">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
-                    <button class="ep-action-btn" onclick="_togglePanel('js')" title="Küçült / Büyüt" id="epCollapseJs">
+                    <button class="ep-action-btn ep-collapse-btn" onclick="event.stopPropagation();_togglePanel('js')" title="Küçült / Büyüt" id="epCollapseJs">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                     </button>
                 </div>
@@ -7623,19 +7673,21 @@ function _setView(mode) {
 }
 
 function _togglePanel(lang) {
-    const el = document.getElementById('ep' + lang.charAt(0).toUpperCase() + lang.slice(1));
+    const cap = lang.charAt(0).toUpperCase() + lang.slice(1);
+    const el  = document.getElementById('ep' + cap);
     if (!el) return;
     const collapsed = el.classList.toggle('ep-collapsed');
-    // Collapse buton okunu döndür
-    const btn = document.getElementById('epCollapse' + lang.charAt(0).toUpperCase() + lang.slice(1));
+    // Collapse buton okunu döndür: kapalıysa sağ ok, açıksa aşağı ok
+    const btn = document.getElementById('epCollapse' + cap);
     if (btn) {
-        const svg = btn.querySelector('svg path');
-        if (svg) svg.setAttribute('d', collapsed
-            ? 'M9 5l7 7-7 7'   // sağa ok (kapalı)
-            : 'M19 9l-7 7-7-7' // aşağı ok (açık)
+        btn.title = collapsed ? 'Büyüt' : 'Küçült';
+        const path = btn.querySelector('svg path');
+        if (path) path.setAttribute('d', collapsed
+            ? 'M9 5l7 7-7 7'    // → sağa ok (açmak için tıkla)
+            : 'M19 9l-7 7-7-7'  // ↓ aşağı ok (kapatmak için tıkla)
         );
     }
-    setTimeout(() => _allCms().forEach(c => c.refresh()), 50);
+    setTimeout(() => _allCms().forEach(c => c.refresh()), 60);
 }
 
 function _toggleChangeView(event) {
