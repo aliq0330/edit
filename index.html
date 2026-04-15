@@ -3178,6 +3178,7 @@ body.view-preview .editors-row { height: 0; min-height: 0; border-bottom: none; 
     transition: flex 0.28s cubic-bezier(0.4,0,0.2,1);
     position: relative;
 }
+body.ep-resizing .ep { transition: none; }
 .ep:last-child { border-right: none; }
 
 /* Küçültülmüş panel: sadece 28px şerit — tek buton sığar */
@@ -8084,6 +8085,7 @@ function _closeHeaderMenu() {
 
         epR.setPointerCapture(e.pointerId);
         epR.classList.add('dragging');
+        document.body.classList.add('ep-resizing');
         document.body.style.userSelect = 'none';
 
         function onMove(ev) {
@@ -8093,6 +8095,7 @@ function _closeHeaderMenu() {
         }
         function onEnd() {
             epR.classList.remove('dragging');
+            document.body.classList.remove('ep-resizing');
             document.body.style.userSelect = '';
             epR.removeEventListener('pointermove', onMove);
             epR.removeEventListener('pointerup',   onEnd);
