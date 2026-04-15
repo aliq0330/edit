@@ -8075,23 +8075,74 @@ function _closeHeaderMenu() {
         const prev = epR.previousElementSibling;
         const next = epR.nextElementSibling;
         if (!prev || !next) return;
+
+        // Collapsed panel yanındaki resizer sürüklenmez
+        if (prev.classList.contains('ep-collapsed') || next.classList.contains('ep-collapsed')) return;
+
         const vertical = ['left3','right3'].includes(_currentView);
         const pr = prev.getBoundingClientRect();
         const nr = next.getBoundingClientRect();
-        const startPos = vertical ? e.clientY : e.clientX;
-        const prevSize = vertical ? pr.height : pr.width;
-        const total    = vertical ? (pr.height + nr.height) : (pr.width + nr.width);
-        const minPx = 32, maxPx = total - minPx;
+        const startPos  = vertical ? e.clientY : e.clientX;
+        const prevSize  = vertical ? pr.height : pr.width;
+        const total     = vertical ? (pr.height + nr.height) : (pr.width + nr.width);
+        const minPx     = 32;
+        const maxPx     = total - minPx;
+        const COLLAPSED_PX  = 28;  // ep-collapsed CSS flex-basis
+        const COLLAPSE_AT   = minPx; // prev bu değere düşünce auto-collapse
+        const HYSTERESIS    = 40;  // auto-collapse'dan geri dönmek için gereken px
 
         epR.setPointerCapture(e.pointerId);
         epR.classList.add('dragging');
         document.body.classList.add('ep-resizing');
         document.body.style.userSelect = 'none';
 
+        let autoCollapsed   = false;
+        let minCursorAfterCollapse = 0;
+
+        function _syncCollapseBtn(panel, collapsed) {
+            const lang = panel.dataset.lang;
+            if (!lang) return;
+            const cap = lang.charAt(0).toUpperCase() + lang.slice(1);
+            const btn = document.getElementById('epCollapse' + cap);
+            if (!btn) return;
+            btn.title = collapsed ? 'Büyüt' : 'Küçült';
+            const path = btn.querySelector('svg path');
+            if (path) path.setAttribute('d', collapsed ? 'M9 5l7 7-7 7' : 'M19 9l-7 7-7-7');
+        }
+
         function onMove(ev) {
-            const newPrev = clamp(prevSize + (vertical ? ev.clientY : ev.clientX) - startPos, minPx, maxPx);
-            prev.style.flex = `0 0 ${newPrev}px`;
-            next.style.flex = `0 0 ${total - newPrev}px`;
+            const curPos = vertical ? ev.clientY : ev.clientX;
+            const newPrev = prevSize + curPos - startPos;
+
+            if (autoCollapsed) {
+                // En düşük cursor pozisyonunu takip et (geri dönme mesafesi baz alınsın)
+                minCursorAfterCollapse = Math.min(minCursorAfterCollapse, curPos);
+                // Yeterince geri dönüldüyse auto-expand
+                if (curPos > minCursorAfterCollapse + HYSTERESIS) {
+                    prev.classList.remove('ep-collapsed');
+                    _syncCollapseBtn(prev, false);
+                    autoCollapsed = false;
+                    const restored = clamp(newPrev, minPx, maxPx);
+                    prev.style.flex = `0 0 ${restored}px`;
+                    next.style.flex = `0 0 ${total - restored}px`;
+                }
+                return;
+            }
+
+            if (newPrev <= COLLAPSE_AT) {
+                // Solundaki paneli otomatik küçült
+                prev.classList.add('ep-collapsed');
+                _syncCollapseBtn(prev, true);
+                prev.style.flex = `0 0 ${COLLAPSED_PX}px`;
+                next.style.flex = `0 0 ${total - COLLAPSED_PX}px`;
+                autoCollapsed = true;
+                minCursorAfterCollapse = curPos;
+                return;
+            }
+
+            const clamped = clamp(newPrev, minPx, maxPx);
+            prev.style.flex = `0 0 ${clamped}px`;
+            next.style.flex = `0 0 ${total - clamped}px`;
         }
         function onEnd() {
             epR.classList.remove('dragging');
