@@ -8086,17 +8086,18 @@ function _closeHeaderMenu() {
         const total     = vertical ? (pr.height + nr.height) : (pr.width + nr.width);
         const minPx     = 32;
         const maxPx     = total - minPx;
-        const COLLAPSED_PX  = 28;  // ep-collapsed CSS flex-basis
-        const COLLAPSE_AT   = minPx; // prev bu değere düşünce auto-collapse
-        const HYSTERESIS    = 40;  // auto-collapse'dan geri dönmek için gereken px
+        const COLLAPSED_PX = 28;   // ep-collapsed CSS flex-basis
+        const COLLAPSE_AT  = minPx; // panel bu değere düşünce auto-collapse
+        const HYSTERESIS   = 40;   // geri dönmek için gereken px
 
         epR.setPointerCapture(e.pointerId);
         epR.classList.add('dragging');
         document.body.classList.add('ep-resizing');
         document.body.style.userSelect = 'none';
 
-        let autoCollapsed   = false;
-        let minCursorAfterCollapse = 0;
+        // null | 'prev' | 'next'
+        let autoCollapsed = null;
+        let extremeCursor = 0; // collapse anındaki ve sonrasındaki en uç cursor pozisyonu
 
         function _syncCollapseBtn(panel, collapsed) {
             const lang = panel.dataset.lang;
@@ -8110,17 +8111,31 @@ function _closeHeaderMenu() {
         }
 
         function onMove(ev) {
-            const curPos = vertical ? ev.clientY : ev.clientX;
+            const curPos  = vertical ? ev.clientY : ev.clientX;
             const newPrev = prevSize + curPos - startPos;
+            const newNext = total - newPrev;
 
-            if (autoCollapsed) {
-                // En düşük cursor pozisyonunu takip et (geri dönme mesafesi baz alınsın)
-                minCursorAfterCollapse = Math.min(minCursorAfterCollapse, curPos);
-                // Yeterince geri dönüldüyse auto-expand
-                if (curPos > minCursorAfterCollapse + HYSTERESIS) {
+            if (autoCollapsed === 'prev') {
+                // En düşük pozisyonu takip et, HYSTERESIS kadar geri dönünce expand
+                extremeCursor = Math.min(extremeCursor, curPos);
+                if (curPos > extremeCursor + HYSTERESIS) {
                     prev.classList.remove('ep-collapsed');
                     _syncCollapseBtn(prev, false);
-                    autoCollapsed = false;
+                    autoCollapsed = null;
+                    const restored = clamp(newPrev, minPx, maxPx);
+                    prev.style.flex = `0 0 ${restored}px`;
+                    next.style.flex = `0 0 ${total - restored}px`;
+                }
+                return;
+            }
+
+            if (autoCollapsed === 'next') {
+                // En yüksek pozisyonu takip et, HYSTERESIS kadar geri dönünce expand
+                extremeCursor = Math.max(extremeCursor, curPos);
+                if (curPos < extremeCursor - HYSTERESIS) {
+                    next.classList.remove('ep-collapsed');
+                    _syncCollapseBtn(next, false);
+                    autoCollapsed = null;
                     const restored = clamp(newPrev, minPx, maxPx);
                     prev.style.flex = `0 0 ${restored}px`;
                     next.style.flex = `0 0 ${total - restored}px`;
@@ -8129,13 +8144,24 @@ function _closeHeaderMenu() {
             }
 
             if (newPrev <= COLLAPSE_AT) {
-                // Solundaki paneli otomatik küçült
+                // Soldaki paneli otomatik küçült
                 prev.classList.add('ep-collapsed');
                 _syncCollapseBtn(prev, true);
                 prev.style.flex = `0 0 ${COLLAPSED_PX}px`;
                 next.style.flex = `0 0 ${total - COLLAPSED_PX}px`;
-                autoCollapsed = true;
-                minCursorAfterCollapse = curPos;
+                autoCollapsed = 'prev';
+                extremeCursor = curPos;
+                return;
+            }
+
+            if (newNext <= COLLAPSE_AT) {
+                // Sağdaki paneli otomatik küçült
+                next.classList.add('ep-collapsed');
+                _syncCollapseBtn(next, true);
+                prev.style.flex = `0 0 ${total - COLLAPSED_PX}px`;
+                next.style.flex = `0 0 ${COLLAPSED_PX}px`;
+                autoCollapsed = 'next';
+                extremeCursor = curPos;
                 return;
             }
 
