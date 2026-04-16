@@ -3154,10 +3154,9 @@ body.preview-mode .fab-container { opacity: 0; pointer-events: none; transform: 
 }
 
 /* ── Editors Row ─────────────────────────────────────────────── */
-/* ── Editors Wrap (tab bar + panels container) ───────────────── */
-.editors-wrap {
+.editors-row {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     flex-shrink: 0;
     height: 42vh;
     min-height: 120px;
@@ -3165,16 +3164,8 @@ body.preview-mode .fab-container { opacity: 0; pointer-events: none; transform: 
     overflow: hidden;
     transition: height 0.3s ease;
 }
-body.view-editors .editors-wrap { height: calc(100vh - 160px); }
-body.view-preview .editors-wrap { height: 0; min-height: 0; border-bottom: none; overflow: hidden; }
-
-.editors-row {
-    display: flex;
-    flex-direction: row;
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-}
+body.view-editors .editors-row { height: calc(100vh - 160px); }
+body.view-preview .editors-row { height: 0; min-height: 0; border-bottom: none; overflow: hidden; }
 
 /* ── Editor Panel (ep) ───────────────────────────────────────── */
 .ep {
@@ -3295,18 +3286,17 @@ body.ep-resizing .ep { transition: none; }
 
 /* ── Mobil: çok dar ekranlarda gizle/küçült ──────────────────── */
 @media (max-width: 480px) {
-    .editors-wrap { height: 44vh; min-height: 130px; }
+    .editors-row { height: 44vh; min-height: 130px; }
     .ep-header { padding: 0 2px 0 5px; gap: 2px; }
     /* Paneller yeterince genişken adı göster, dar olunca sadece ikon */
     .ep-name { display: none; }
     .ep-icon { width: 16px; height: 16px; font-size: 8px; }
+  
     .ep-action-btn { width: 24px; height: 24px; }
     /* JS panelindeki view toggle mobilde küçük kalsın */
     .ep-action-btn.ep-view-toggle-btn { width: 24px; height: 24px; }
-    /* Editörler wrap daha az yer kaplasın ki önizleme sığsın */
-    body.view-editors .editors-wrap { height: calc(100dvh - 200px); }
-    /* Collapse butonu mobilede gizle */
-    .ep-collapse-btn { display: none !important; }
+    /* Editörler row daha az yer kaplasın ki önizleme sığsın */
+    body.view-editors .editors-row { height: calc(100dvh - 200px); }
 }
 @media (max-width: 360px) {
     .ep-view-toggle-btn { display: none !important; }
@@ -3588,22 +3578,18 @@ body.view-right3 #appMain {
 }
 body.view-right3 #appMain { flex-direction: row-reverse; }
 
-body.view-left3 .editors-wrap,
-body.view-right3 .editors-wrap {
+body.view-left3 .editors-row,
+body.view-right3 .editors-row {
+    flex-direction: column;
     height: 100%; width: 42%;
     flex: 0 0 42%; min-height: 0;
     border-bottom: none;
     border-right: 1px solid var(--glass-border);
     overflow: visible;
 }
-body.view-right3 .editors-wrap {
+body.view-right3 .editors-row {
     border-right: none;
     border-left: 1px solid var(--glass-border);
-}
-body.view-left3 .editors-row,
-body.view-right3 .editors-row {
-    flex-direction: column;
-    overflow: visible;
 }
 body.view-left3 .editors-row .ep,
 body.view-right3 .editors-row .ep {
@@ -4597,9 +4583,6 @@ body.view-preview .split-resizer { display: none; }
 <input type="file" id="fileInput" accept=".html,.htm,.txt,.text,.js,.css,.json,.xml,.md" style="display:none" onchange="handleFileLoad(event)">
 <main id="appMain" style="display:none;">
 
-    <!-- ── Editörler Sarmalayıcı (tab çubuğu + paneller) ────────── -->
-    <div class="editors-wrap" id="editorsWrap">
-
     <!-- ── Mobil Editör Sekmeleri (yalnızca mobil) ───────────────── -->
     <div class="mobile-editor-tabs" id="mobileEditorTabs">
         <button class="met-tab active" id="metHtml" onclick="_selectMobileTab('html')">HTML</button>
@@ -4681,8 +4664,7 @@ body.view-preview .split-resizer { display: none; }
                 <textarea id="editorJs" spellcheck="false"></textarea>
             </div>
         </div>
-    </div><!-- /#editorsRow -->
-    </div><!-- /#editorsWrap -->
+    </div>
 
     <!-- ── Editörler ↔ Önizleme Boyutlandırıcı ───────────────────── -->
     <div class="split-resizer" id="splitResizer" title="Sürükle"></div>
