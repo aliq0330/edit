@@ -3786,6 +3786,8 @@ body.view-preview .split-resizer { display: none; }
     .mobile-editor-tabs { display: flex; }
     /* Hide ep-resizers on mobile (single-tab view) */
     .ep-resizer { display: none; }
+    /* Completely hide inactive editor panels on mobile */
+    .ep.ep-mobile-hidden { display: none !important; }
 }
 
 /* ── Tools Bar Toggle Button ─────────────────────────────────── */
@@ -8367,9 +8369,11 @@ function _selectMobileTab(tab) {
             const el  = document.getElementById('ep' + cap);
             if (!el) return;
             if (lang === tab) {
+                el.classList.remove('ep-mobile-hidden');
                 el.classList.remove('ep-collapsed');
             } else {
-                el.classList.add('ep-collapsed');
+                el.classList.add('ep-mobile-hidden');
+                el.classList.remove('ep-collapsed');
             }
             el.style.flex = '';
         });
