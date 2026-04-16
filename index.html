@@ -3341,6 +3341,11 @@ body.view-preview .split-preview { flex: 1; }
     background: white;
     display: block;
 }
+/* Sürükleme sırasında iframe pointer olaylarını blokla */
+body.ep-resizing .split-preview-iframe,
+body.split-resizing .split-preview-iframe {
+    pointer-events: none;
+}
 
 /* ── Tools Bar (Console / Assets / Shortcuts) ────────────────── */
 .tools-bar {
@@ -8371,6 +8376,7 @@ function _closeHeaderMenu() {
             epR.removeEventListener('pointerup',   onEnd);
             epR.removeEventListener('pointercancel', onEnd);
             setTimeout(() => _allCms().forEach(c => c.refresh()), 40);
+            _updatePreviewLive();
         }
         epR.addEventListener('pointermove', onMove);
         epR.addEventListener('pointerup',   onEnd);
@@ -8393,6 +8399,7 @@ function _closeHeaderMenu() {
         spR.setPointerCapture(e.pointerId);
         spR.classList.add('dragging');
         document.body.style.userSelect = 'none';
+        document.body.classList.add('split-resizing');
 
         function onMove(ev) {
             const newEr = clamp(erSize + (vertical ? ev.clientX : ev.clientY) - startPos, minPx, maxPx);
@@ -8402,10 +8409,12 @@ function _closeHeaderMenu() {
         function onEnd() {
             spR.classList.remove('dragging');
             document.body.style.userSelect = '';
+            document.body.classList.remove('split-resizing');
             spR.removeEventListener('pointermove', onMove);
             spR.removeEventListener('pointerup',   onEnd);
             spR.removeEventListener('pointercancel', onEnd);
             setTimeout(() => _allCms().forEach(c => c.refresh()), 40);
+            _updatePreviewLive();
         }
         spR.addEventListener('pointermove', onMove);
         spR.addEventListener('pointerup',   onEnd);
