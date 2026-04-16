@@ -8460,6 +8460,11 @@ function _selectMobileTab(tab) {
     // Önizleme sekmesi: wrap'i tab çubuğuna küçült, önizleme alanı kaplar
     if (tab === 'result') {
         document.body.classList.add('mobile-tab-preview');
+        // Sürüklemeden kalan inline flex stillerini temizle
+        const wrap = document.getElementById('editorsWrap');
+        const sp   = document.getElementById('splitPreview');
+        if (wrap) { wrap.style.flex = ''; wrap.style.height = ''; }
+        if (sp)   { sp.style.flex = ''; }
         // Tüm editör panellerini gizle
         ['html','css','js'].forEach(lang => {
             const el = document.getElementById('ep' + lang.charAt(0).toUpperCase() + lang.slice(1));
@@ -8470,6 +8475,11 @@ function _selectMobileTab(tab) {
         if (f) f.srcdoc = buildPage();
     } else {
         document.body.classList.remove('mobile-tab-preview');
+        // Sürüklemeden kalan inline flex stillerini temizle
+        const wrap2 = document.getElementById('editorsWrap');
+        const sp2   = document.getElementById('splitPreview');
+        if (wrap2) { wrap2.style.flex = ''; wrap2.style.height = ''; }
+        if (sp2)   { sp2.style.flex = ''; }
         ['html','css','js'].forEach(lang => {
             const cap = lang.charAt(0).toUpperCase() + lang.slice(1);
             const el  = document.getElementById('ep' + cap);
