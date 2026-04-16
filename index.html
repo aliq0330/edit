@@ -3393,20 +3393,22 @@ body.split-resizing .split-preview-iframe {
 .tools-pane-entry:last-child { border-bottom: none; }
 .tools-bar-wrap { position: relative; flex-shrink: 0; }
 
-/* ── Change View Dropdown ────────────────────────────────────── */
+/* ── Change View Dropdown — user-dropdown ile aynı stil ─────── */
 .cv-dropdown {
     position: fixed;
-    background: var(--card-bg);
+    background: var(--glass-bg);
+    backdrop-filter: saturate(var(--saturation)) blur(var(--blur));
+    -webkit-backdrop-filter: saturate(var(--saturation)) blur(var(--blur));
     border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    padding: 10px;
-    z-index: 600;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-    min-width: 150px;
+    border-radius: 20px;
+    padding: 8px;
+    z-index: 9000;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    min-width: 160px;
     opacity: 0;
-    transform: scale(0.9) translateY(-6px);
+    transform: scale(0.96) translateY(-8px);
     pointer-events: none;
-    transition: opacity 0.18s, transform 0.18s;
+    transition: opacity 0.25s cubic-bezier(0.25,0.8,0.25,1), transform 0.25s cubic-bezier(0.25,0.8,0.25,1);
 }
 .cv-dropdown.open {
     opacity: 1;
@@ -3414,13 +3416,12 @@ body.split-resizing .split-preview-iframe {
     pointer-events: auto;
 }
 .cv-title {
-    font-size: 10px;
-    font-weight: 800;
+    font-size: 12px;
+    font-weight: 600;
     color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 8px;
-    padding: 0 2px;
+    padding: 6px 14px 8px;
+    border-bottom: 1px solid var(--glass-border);
+    margin-bottom: 4px;
 }
 .cv-opts { display: flex; gap: 5px; }
 .cv-opt {
@@ -3747,35 +3748,42 @@ body.view-preview .split-resizer { display: none; }
 .header-cv-btn:active { transform: scale(0.9); }
 .header-cv-btn svg { width: 14px; height: 14px; }
 
-/* Mobil araç çubuğu dropdown */
+/* Mobil araç çubuğu dropdown — user-dropdown ile aynı stil */
 .header-toolbar-dd {
     position: fixed;
-    top: 0; right: 0; left: auto;
-    min-width: 200px;
-    background: var(--card-bg);
+    top: 0; right: 0;
+    min-width: 210px;
+    background: var(--glass-bg);
+    backdrop-filter: saturate(var(--saturation)) blur(var(--blur));
+    -webkit-backdrop-filter: saturate(var(--saturation)) blur(var(--blur));
     border: 1px solid var(--glass-border);
-    border-top: none;
-    border-radius: 0 0 14px 14px;
-    padding: 6px;
-    display: flex; flex-direction: column; gap: 2px;
-    z-index: 450;
-    transform: translateY(-120%);
-    transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    border-radius: 20px;
+    padding: 8px;
+    display: flex; flex-direction: column;
+    z-index: 9000;
+    opacity: 0;
+    transform: scale(0.96) translateY(-8px);
+    pointer-events: none;
+    transition: opacity 0.25s cubic-bezier(0.25,0.8,0.25,1), transform 0.25s cubic-bezier(0.25,0.8,0.25,1);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
 }
-.header-toolbar-dd.open { transform: translateY(52px); }
+.header-toolbar-dd.open {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    pointer-events: all;
+}
 .htd-btn {
     display: flex; align-items: center; gap: 10px;
-    padding: 11px 14px; border-radius: 8px;
+    padding: 11px 14px; border-radius: 14px;
     background: transparent; border: none;
-    color: var(--text-primary); font-size: 13px; font-weight: 600;
-    cursor: pointer; font-family: inherit; transition: background 0.12s;
+    color: var(--text-primary); font-size: 14px; font-weight: 600;
+    cursor: pointer; font-family: inherit; transition: all 0.2s ease;
     width: 100%; text-align: left;
 }
-.htd-btn:hover { background: rgba(120,120,128,0.1); }
-.htd-btn:active { background: rgba(120,120,128,0.18); transform: scale(0.98); }
-.htd-btn svg { width: 15px; height: 15px; flex-shrink: 0; color: var(--text-secondary); }
-.htd-backdrop { display: none; position: fixed; inset: 0; z-index: 449; }
+.htd-btn:hover { background: rgba(120,120,128,0.15); }
+.htd-btn:active { background: rgba(120,120,128,0.2); transform: scale(0.98); }
+.htd-btn svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--text-secondary); }
+.htd-backdrop { display: none; position: fixed; inset: 0; z-index: 8999; }
 .htd-backdrop.open { display: block; }
 
 /* ── Mobile Editor Tabs ──────────────────────────────────────── */
@@ -4765,7 +4773,7 @@ body.view-preview .split-resizer { display: none; }
 
     <!-- ── Change View Dropdown ───────────────────────────────────── -->
     <div class="cv-dropdown" id="cvDropdown">
-        <div class="cv-title">Change View</div>
+        <div class="cv-title">Görünümü Değiştir</div>
         <div class="cv-opts" style="flex-wrap:wrap;gap:5px;">
             <button class="cv-opt active" data-view="split" onclick="_setView('split')" title="Editörler üstte, Önizleme altta" style="flex:1 1 calc(33% - 4px)">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="9" rx="1" stroke-width="2"/><rect x="3" y="14" width="18" height="7" rx="1" stroke-width="2"/></svg>
@@ -4829,25 +4837,13 @@ body.view-preview .split-resizer { display: none; }
         <iframe id="previewFrameInline" class="split-preview-iframe"></iframe>
     </div>
 
-    <!-- ── Alt Araçlar Çubuğu (Console / Assets / Shortcuts) ──────── -->
-    <div class="tools-bar-wrap" id="toolsBarWrap">
+    <!-- ── Alt Araçlar Çubuğu (Konsol) ──────── -->
+    <div class="tools-bar-wrap tbw-collapsed" id="toolsBarWrap">
         <div class="tools-pane active" id="toolsPaneConsole">
             <div class="tools-pane-entry" id="consolePlaceholder" style="color:var(--text-secondary);font-style:italic;">Konsol çıktısı burada görünür.</div>
         </div>
-        <div class="tools-pane" id="toolsPaneAssets">
-            <div class="tools-pane-entry" style="cursor:pointer;color:#007aff;" onclick="openSavedFilesPanel()">Kayıtlı Dosyalar →</div>
-        </div>
-        <div class="tools-pane" id="toolsPaneShortcuts">
-            <div class="tools-pane-entry">Ctrl+/ → Yorum ekle</div>
-            <div class="tools-pane-entry">Ctrl+S → Kaydet</div>
-            <div class="tools-pane-entry">Ctrl+F → Ara</div>
-            <div class="tools-pane-entry">Tab → 2 boşluk girintile</div>
-            <div class="tools-pane-entry">Ctrl+Q → Kodu katla</div>
-        </div>
         <div class="tools-bar" id="toolsBar">
-            <button class="tools-tab active" data-pane="Console" onclick="_switchToolsTab(this,'toolsPaneConsole')">Console</button>
-            <button class="tools-tab" data-pane="Assets" onclick="_switchToolsTab(this,'toolsPaneAssets')">Assets</button>
-            <button class="tools-tab" data-pane="Shortcuts" onclick="_switchToolsTab(this,'toolsPaneShortcuts')">Shortcuts</button>
+            <button class="tools-tab active" data-pane="Console" onclick="_switchToolsTab(this,'toolsPaneConsole')">Konsol</button>
             <button class="tools-toggle-btn" id="toolsToggleBtn" onclick="_toggleToolsWrap()" title="Araçları aç/kapat">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/>
@@ -8251,18 +8247,24 @@ function _closeAllDropdowns() {
 
 /* ── Header Mobile Menu ── */
 function _toggleHeaderMenu() {
-    const dd = document.getElementById('headerToolbarDd');
-    const bd = document.getElementById('htdBackdrop');
-    if (!dd) return;
+    const dd  = document.getElementById('headerToolbarDd');
+    const btn = document.getElementById('headerMenuBtn');
+    const bd  = document.getElementById('htdBackdrop');
+    if (!dd || !btn) return;
     const opening = !dd.classList.contains('open');
+    if (opening) {
+        const rect = btn.getBoundingClientRect();
+        dd.style.top   = (rect.bottom + 6) + 'px';
+        dd.style.right = (window.innerWidth - rect.right) + 'px';
+    }
     dd.classList.toggle('open', opening);
-    if (bd) bd.style.display = opening ? 'block' : 'none';
+    if (bd) bd.classList.toggle('open', opening);
 }
 function _closeHeaderMenu() {
     const dd = document.getElementById('headerToolbarDd');
     const bd = document.getElementById('htdBackdrop');
     if (dd) dd.classList.remove('open');
-    if (bd) bd.style.display = 'none';
+    if (bd) bd.classList.remove('open');
 }
 
 /* ── Unified Drag-Resize (Pointer Events API) ── */
