@@ -3725,28 +3725,94 @@ body.view-preview .split-resizer { display: none; }
 /* Mobil araç çubuğu dropdown */
 .header-toolbar-dd {
     position: fixed;
-    top: 0; left: 0; right: 0;
+    top: 0; right: 0; left: auto;
+    min-width: 200px;
     background: var(--card-bg);
-    border-bottom: 1px solid var(--glass-border);
-    padding: 10px 12px;
-    display: flex; flex-wrap: wrap; gap: 7px;
+    border: 1px solid var(--glass-border);
+    border-top: none;
+    border-radius: 0 0 14px 14px;
+    padding: 6px;
+    display: flex; flex-direction: column; gap: 2px;
     z-index: 450;
     transform: translateY(-120%);
     transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
 }
 .header-toolbar-dd.open { transform: translateY(52px); }
 .htd-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 8px 13px; border-radius: 10px;
-    background: rgba(120,120,128,0.1); border: 1px solid var(--glass-border);
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 14px; border-radius: 8px;
+    background: transparent; border: none;
     color: var(--text-primary); font-size: 13px; font-weight: 600;
-    cursor: pointer; font-family: inherit; transition: all 0.12s;
+    cursor: pointer; font-family: inherit; transition: background 0.12s;
+    width: 100%; text-align: left;
 }
-.htd-btn:active { transform: scale(0.94); }
-.htd-btn svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--text-secondary); }
+.htd-btn:hover { background: rgba(120,120,128,0.1); }
+.htd-btn:active { background: rgba(120,120,128,0.18); transform: scale(0.98); }
+.htd-btn svg { width: 15px; height: 15px; flex-shrink: 0; color: var(--text-secondary); }
 .htd-backdrop { display: none; position: fixed; inset: 0; z-index: 449; }
 .htd-backdrop.open { display: block; }
+
+/* ── Mobile Editor Tabs ──────────────────────────────────────── */
+.mobile-editor-tabs {
+    display: none;
+    flex-direction: row;
+    background: rgba(0,0,0,0.22);
+    border-bottom: 1px solid var(--glass-border);
+    flex-shrink: 0;
+    height: 44px;
+}
+.met-tab {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    padding: 0 4px;
+}
+.met-tab.active {
+    color: var(--text-primary);
+    border-bottom-color: #007aff;
+    background: rgba(0,122,255,0.1);
+}
+@media (max-width: 768px) {
+    .mobile-editor-tabs { display: flex; }
+    /* Hide ep-resizers on mobile (single-tab view) */
+    .ep-resizer { display: none; }
+}
+
+/* ── Tools Bar Toggle Button ─────────────────────────────────── */
+.tools-toggle-btn {
+    margin-left: auto;
+    padding: 0 12px;
+    height: 38px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: color 0.15s;
+}
+.tools-toggle-btn:hover { color: var(--text-primary); }
+.tools-toggle-btn svg { width: 13px; height: 13px; transition: transform 0.2s; }
+/* Arrow points UP when open (click to close), DOWN when collapsed (click to open) */
+.tools-bar-wrap.tbw-collapsed .tools-toggle-btn svg { transform: rotate(180deg); }
+/* Hide active pane when collapsed */
+.tools-bar-wrap.tbw-collapsed .tools-pane { display: none !important; }
+
+/* ── Mobile: Profile — avatar only, no name ──────────────────── */
+@media (max-width: 768px) {
+    .user-pill-name { display: none; }
+    .user-pill { padding: 4px 6px; }
+}
 
 </style>
 
@@ -4515,6 +4581,14 @@ body.view-preview .split-resizer { display: none; }
 <input type="file" id="fileInput" accept=".html,.htm,.txt,.text,.js,.css,.json,.xml,.md" style="display:none" onchange="handleFileLoad(event)">
 <main id="appMain" style="display:none;">
 
+    <!-- ── Mobil Editör Sekmeleri (yalnızca mobil) ───────────────── -->
+    <div class="mobile-editor-tabs" id="mobileEditorTabs">
+        <button class="met-tab active" id="metHtml" onclick="_selectMobileTab('html')">HTML</button>
+        <button class="met-tab" id="metCss" onclick="_selectMobileTab('css')">CSS</button>
+        <button class="met-tab" id="metJs" onclick="_selectMobileTab('js')">JS</button>
+        <button class="met-tab" id="metResult" onclick="_selectMobileTab('result')">Result</button>
+    </div>
+
     <!-- ── 3 Yan Yana Editor Paneli ──────────────────────────────── -->
     <div class="editors-row" id="editorsRow">
 
@@ -4678,6 +4752,11 @@ body.view-preview .split-resizer { display: none; }
             <button class="tools-tab active" data-pane="Console" onclick="_switchToolsTab(this,'toolsPaneConsole')">Console</button>
             <button class="tools-tab" data-pane="Assets" onclick="_switchToolsTab(this,'toolsPaneAssets')">Assets</button>
             <button class="tools-tab" data-pane="Shortcuts" onclick="_switchToolsTab(this,'toolsPaneShortcuts')">Shortcuts</button>
+            <button class="tools-toggle-btn" id="toolsToggleBtn" onclick="_toggleToolsWrap()" title="Araçları aç/kapat">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/>
+                </svg>
+            </button>
         </div>
     </div>
 
@@ -6536,6 +6615,7 @@ function showApp() {
     updateFilenameDisplay();
     updateTabDotColor();
     // Not: versiyon rozeti loadSavedFilesFromCloud() tamamlandıktan sonra yüklenir
+    setTimeout(_initMobileTabs, 150);
 }
 
 function updateUserUI(user) {
@@ -8255,6 +8335,54 @@ function _switchToolsTab(btn, paneId) {
     btn.classList.add('active');
     const pane = document.getElementById(paneId);
     if (pane) pane.classList.add('active');
+    // Re-open if user had collapsed the bar
+    const wrap = document.getElementById('toolsBarWrap');
+    if (wrap) wrap.classList.remove('tbw-collapsed');
+}
+
+// ── Tools Bar Toggle ────────────────────────────────────────────────
+function _toggleToolsWrap() {
+    const wrap = document.getElementById('toolsBarWrap');
+    if (wrap) wrap.classList.toggle('tbw-collapsed');
+}
+
+// ── Mobil Editör Sekmeleri ──────────────────────────────────────────
+let _mobileActiveTab = 'html';
+
+function _selectMobileTab(tab) {
+    _mobileActiveTab = tab;
+    ['html','css','js','result'].forEach(t => {
+        const id = 'met' + t.charAt(0).toUpperCase() + t.slice(1);
+        const btn = document.getElementById(id);
+        if (btn) btn.classList.toggle('active', t === tab);
+    });
+    if (tab === 'result') {
+        _setView('preview');
+    } else {
+        if (document.body.classList.contains('view-preview')) {
+            _setView('split');
+        }
+        ['html','css','js'].forEach(lang => {
+            const cap = lang.charAt(0).toUpperCase() + lang.slice(1);
+            const el  = document.getElementById('ep' + cap);
+            if (!el) return;
+            if (lang === tab) {
+                el.classList.remove('ep-collapsed');
+            } else {
+                el.classList.add('ep-collapsed');
+            }
+            el.style.flex = '';
+        });
+        const row = document.getElementById('editorsRow');
+        if (row) row.querySelectorAll('.ep').forEach(p => { p.style.flex = ''; });
+        setTimeout(() => _allCms().forEach(c => c.refresh()), 60);
+    }
+}
+
+function _initMobileTabs() {
+    if (window.innerWidth <= 768) {
+        _selectMobileTab('html');
+    }
 }
 
 // Console çıktısını yakala
