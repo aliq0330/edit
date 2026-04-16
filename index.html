@@ -3756,11 +3756,11 @@ body.view-preview .split-resizer { display: none; }
 /* ── Mobile Editor Tabs ──────────────────────────────────────── */
 .mobile-editor-tabs {
     display: none;
-    flex-direction: row;
+    flex-direction: column;
     background: rgba(0,0,0,0.22);
-    border-bottom: 1px solid var(--glass-border);
+    border-right: 1px solid var(--glass-border);
     flex-shrink: 0;
-    height: 44px;
+    width: 36px;
 }
 .met-tab {
     flex: 1;
@@ -3768,26 +3768,55 @@ body.view-preview .split-resizer { display: none; }
     background: transparent;
     color: var(--text-secondary);
     font-family: inherit;
-    font-size: 11px;
+    font-size: 9px;
     font-weight: 700;
     cursor: pointer;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    border-bottom: 2px solid transparent;
+    border-left: 2px solid transparent;
     transition: all 0.15s;
-    padding: 0 4px;
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
 }
 .met-tab.active {
     color: var(--text-primary);
-    border-bottom-color: #007aff;
+    border-left-color: #007aff;
     background: rgba(0,122,255,0.1);
 }
 @media (max-width: 768px) {
+    /* Normal/split view: vertical sidebar on left */
     .mobile-editor-tabs { display: flex; }
     /* Hide ep-resizers on mobile (single-tab view) */
     .ep-resizer { display: none; }
     /* Completely hide inactive editor panels on mobile */
     .ep.ep-mobile-hidden { display: none !important; }
+    /* Left3/right3: tabs horizontal at top of editors column */
+    body.view-left3 .mobile-editor-tabs,
+    body.view-right3 .mobile-editor-tabs {
+        flex-direction: row;
+        width: 100%;
+        height: 44px;
+        border-right: none;
+        border-bottom: 1px solid var(--glass-border);
+    }
+    body.view-left3 .met-tab,
+    body.view-right3 .met-tab {
+        writing-mode: horizontal-tb;
+        transform: none;
+        font-size: 11px;
+        padding: 0 4px;
+        border-left: none;
+        border-bottom: 2px solid transparent;
+    }
+    body.view-left3 .met-tab.active,
+    body.view-right3 .met-tab.active {
+        border-left-color: transparent;
+        border-bottom-color: #007aff;
+    }
 }
 
 /* ── Tools Bar Toggle Button ─────────────────────────────────── */
@@ -3814,6 +3843,8 @@ body.view-preview .split-resizer { display: none; }
 @media (max-width: 768px) {
     .user-pill-name { display: none; }
     .user-pill { padding: 4px 6px; }
+    /* ep-collapse-btn mobilde gizle */
+    .ep-collapse-btn { display: none !important; }
 }
 
 </style>
@@ -4583,16 +4614,16 @@ body.view-preview .split-resizer { display: none; }
 <input type="file" id="fileInput" accept=".html,.htm,.txt,.text,.js,.css,.json,.xml,.md" style="display:none" onchange="handleFileLoad(event)">
 <main id="appMain" style="display:none;">
 
-    <!-- ── Mobil Editör Sekmeleri (yalnızca mobil) ───────────────── -->
-    <div class="mobile-editor-tabs" id="mobileEditorTabs">
-        <button class="met-tab active" id="metHtml" onclick="_selectMobileTab('html')">HTML</button>
-        <button class="met-tab" id="metCss" onclick="_selectMobileTab('css')">CSS</button>
-        <button class="met-tab" id="metJs" onclick="_selectMobileTab('js')">JS</button>
-        <button class="met-tab" id="metResult" onclick="_selectMobileTab('result')">Result</button>
-    </div>
-
     <!-- ── 3 Yan Yana Editor Paneli ──────────────────────────────── -->
     <div class="editors-row" id="editorsRow">
+
+        <!-- ── Mobil Editör Sekmeleri (yalnızca mobil) ─────────── -->
+        <div class="mobile-editor-tabs" id="mobileEditorTabs">
+            <button class="met-tab active" id="metHtml" onclick="_selectMobileTab('html')">HTML</button>
+            <button class="met-tab" id="metCss" onclick="_selectMobileTab('css')">CSS</button>
+            <button class="met-tab" id="metJs" onclick="_selectMobileTab('js')">JS</button>
+            <button class="met-tab" id="metResult" onclick="_selectMobileTab('result')">Result</button>
+        </div>
 
         <!-- HTML Paneli -->
         <div class="ep" id="epHtml" data-lang="html">
