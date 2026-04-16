@@ -3885,6 +3885,14 @@ body.view-preview .split-resizer { display: none; }
 /* Hide active pane when collapsed */
 .tools-bar-wrap.tbw-collapsed .tools-pane { display: none !important; }
 
+/* Önizleme sekmesi seçilince wrap sadece tab çubuğu kadar kalır */
+@media (max-width: 768px) {
+    body.mobile-tab-preview .editors-wrap {
+        height: 44px !important;
+        min-height: 44px !important;
+    }
+}
+
 /* ── Mobile: Profile — avatar only, no name ──────────────────── */
 @media (max-width: 768px) {
     .user-pill-name { display: none; }
@@ -4663,13 +4671,13 @@ body.view-preview .split-resizer { display: none; }
     <!-- ── Editors Wrap (tab bar + editör panelleri) ─────────────── -->
     <div class="editors-wrap" id="editorsWrap">
 
-        <!-- ── Mobil Editör Sekmeleri (yalnızca mobil) ─────────── -->
-        <div class="mobile-editor-tabs" id="mobileEditorTabs">
-            <button class="met-tab active" id="metHtml" onclick="_selectMobileTab('html')">HTML</button>
-            <button class="met-tab" id="metCss" onclick="_selectMobileTab('css')">CSS</button>
-            <button class="met-tab" id="metJs" onclick="_selectMobileTab('js')">JS</button>
-            <button class="met-tab" id="metResult" onclick="_selectMobileTab('result')">Result</button>
-        </div>
+    <!-- ── Mobil Editör Sekmeleri (yalnızca mobil) ───────────────── -->
+    <div class="mobile-editor-tabs" id="mobileEditorTabs">
+        <button class="met-tab active" id="metHtml" onclick="_selectMobileTab('html')">HTML</button>
+        <button class="met-tab" id="metCss" onclick="_selectMobileTab('css')">CSS</button>
+        <button class="met-tab" id="metJs" onclick="_selectMobileTab('js')">JS</button>
+        <button class="met-tab" id="metResult" onclick="_selectMobileTab('result')">Önizleme</button>
+    </div>
 
         <!-- ── 3 Yan Yana Editor Paneli ──────────────────────────── -->
         <div class="editors-row" id="editorsRow">
@@ -8439,12 +8447,20 @@ function _selectMobileTab(tab) {
         const btn = document.getElementById(id);
         if (btn) btn.classList.toggle('active', t === tab);
     });
+
+    // Önizleme sekmesi: wrap'i tab çubuğuna küçült, önizleme alanı kaplar
     if (tab === 'result') {
-        _setView('preview');
+        document.body.classList.add('mobile-tab-preview');
+        // Tüm editör panellerini gizle
+        ['html','css','js'].forEach(lang => {
+            const el = document.getElementById('ep' + lang.charAt(0).toUpperCase() + lang.slice(1));
+            if (el) { el.classList.add('ep-mobile-hidden'); el.classList.remove('ep-collapsed'); el.style.flex = ''; }
+        });
+        // Önizlemeyi hemen güncelle
+        const f = document.getElementById('previewFrameInline');
+        if (f) f.srcdoc = buildPage();
     } else {
-        if (document.body.classList.contains('view-preview')) {
-            _setView('split');
-        }
+        document.body.classList.remove('mobile-tab-preview');
         ['html','css','js'].forEach(lang => {
             const cap = lang.charAt(0).toUpperCase() + lang.slice(1);
             const el  = document.getElementById('ep' + cap);
@@ -8726,6 +8742,16 @@ function updateSavedCount() {
     if (el) el.textContent = savedFiles.length;
 }
 
+// ── Canlı Önizleme (debounced) ─────────────────────────────────────────
+let _previewTimer = null;
+function _updatePreviewLive() {
+    clearTimeout(_previewTimer);
+    _previewTimer = setTimeout(() => {
+        const f = document.getElementById('previewFrameInline');
+        if (f) f.srcdoc = buildPage();
+    }, 300);
+}
+
 // ── Editor ─────────────────────────────────────────────────────────────
 function updateCode() {
     // CM varsa CM'den al, yoksa gizli textarea'dan
@@ -8740,8 +8766,7 @@ function updateCode() {
         setSaveButtonState('idle');
     }
 
-    if (currentView === 'preview')
-        document.getElementById('previewFrameInline').srcdoc = buildPage();
+    _updatePreviewLive();
 }
 
 function _getCMMode(filename) {
@@ -8804,7 +8829,7 @@ function _initCodeMirrors() {
             hasUnsavedChanges = true;
             saveToStorage(); updateTabDotColor(); updateQuickSaveButton();
             if (saveButtonState === 'saved') setSaveButtonState('idle');
-            if (currentView === 'preview') document.getElementById('previewFrameInline').srcdoc = buildPage();
+            _updatePreviewLive();
         });
         c.on('focus', () => {
             _activeTab = tabKey;
